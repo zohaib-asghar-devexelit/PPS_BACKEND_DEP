@@ -13,6 +13,9 @@ export function generateResetPasswordTemplate(resetLink: string): string {
             Reset Password
           </a>
         </div>
+         <p style="font-size: 14px; color: #555;">
+          ${resetLink}
+        </p>
         <p style="font-size: 14px; color: #555;">
           This link will expire in 10 minutes. If you didn’t request a password reset, please ignore this email.
         </p>

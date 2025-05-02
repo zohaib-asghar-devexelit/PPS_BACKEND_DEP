@@ -6,7 +6,9 @@ import { RegisterCompanyDto } from '../../company/dto/register-company.dto';
 import { LoginOfficerDto } from '../dto/login.dto';
 import { ApiResponse } from '@nestjs/swagger';
 import { LoginService } from '../services/login.service';
+import { ChangePasswordService } from '../services/change-password.service';
 import { VerifyOtpDto } from '../dto/verify-otp.dto';
+import { ChangePasswordDto } from '../dto/change-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -14,6 +16,7 @@ export class RegisterController {
     constructor(
         private readonly registerService: RegisterService,
         private readonly loginService: LoginService,
+        private readonly changePasswordService: ChangePasswordService,
       ) {}
 
   @Post('login')
@@ -133,6 +136,25 @@ export class RegisterController {
       statusCode: 200,
       success: true,
       description: result.message,
+    };
+  }
+  
+  @Post('change-password')
+  @ApiOperation({ summary: 'Change the user password using the reset token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password successfully changed',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid token or passwords do not match',
+  })
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    const result = await this.changePasswordService.changePassword(changePasswordDto);
+    return {
+      statusCode: 200,
+      success: true,
+      description: result,
     };
   }
 }

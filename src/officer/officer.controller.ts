@@ -1,71 +1,14 @@
 import { Controller, Body, Put, Param, Delete, Get } from '@nestjs/common';
 import { OfficerService } from './officer.service';
-// import { RegisterOfficerDto } from '../dto/register-officer.dto';
 import { UpdateOfficerDto } from '../officer/dto/update-officer.dto'; // Assuming you have an update DTO
 import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger';
 import { ApiResponse } from '../auth/dto/api-response.dto';
-// import { VerifyOtpDto } from '../dto/verify-otp.dto';
-// import { LoginOfficerDto } from '../dto/login.dto';
+
 
 @ApiTags('Officer')
 @Controller('officer')
 export class OfficerController {
   constructor(private readonly officerService: OfficerService) {}
-
-  // @Post('login')
-  // @ApiOperation({ summary: 'Login an officer' })
-  // @SwaggerApiResponse({
-  //   status: 200,
-  //   description: 'Login successful and JWT token returned',
-  //   type: ApiResponse,
-  // })
-  // @SwaggerApiResponse({
-  //   status: 401,
-  //   description: 'Invalid credentials or email not verified',
-  //   type: SwaggerApiResponse,
-  // })
-  // async login(@Body() loginOfficerDto: LoginOfficerDto) {
-  //   const { token, officer } = await this.officerService.login(loginOfficerDto);
-  //   return {
-  //     statusCode: 200,
-  //     success: true,
-  //     description: 'Login successful',
-  //     content: {
-  //       officer,
-  //       token,
-  //     },
-  //   };
-  // }
-
-  // Register a new officer
-//   @Post('register')
-// @ApiOperation({ summary: 'Register a new officer' })
-// @SwaggerApiResponse({
-//   status: 200,
-//   description: 'Officer registered successfully',
-//   type: ApiResponse,
-// })
-// @SwaggerApiResponse({
-//   status: 409,
-//   description: 'Officer email already exists',
-//   type: ApiResponse,
-// })
-// async register(@Body() dto: RegisterOfficerDto) {
-//   const { officer, token } = await this.officerService.registerOfficer(dto);
-//   return {
-//     statusCode: 200,
-//     success: true,
-//     description: 'Officer registered successfully',
-//     content: {
-//       officer,
-//       token,
-//     },
-//   };
-// }
-// @Post('verify-otp')
-// async verifyOtp(@Body() dto: VerifyOtpDto) {
-//   return this.officerService.verifyOtp(dto);
-// }
 
   // Get a list of all officers
   @Get('getAllOfficer')

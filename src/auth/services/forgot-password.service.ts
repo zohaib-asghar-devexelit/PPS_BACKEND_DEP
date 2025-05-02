@@ -19,8 +19,6 @@ export class ForgotPasswordService {
 
   async sendResetPasswordLink(email: string, role: 'company' | 'officer') {
     let user: any;
-    console.log("==>email",email)
-    console.log("==>role",role)
     if (role === 'company') {
       user = await this.companyModel.findOne({ companyEmail: email });
     } else if (role === 'officer') {
@@ -36,7 +34,7 @@ export class ForgotPasswordService {
         { sub: user._id, role: role },
         { secret: process.env.JWT_SECRET, expiresIn: '15m' }
       );
-
+      console.log("===>token",resetToken)
       user.resetPasswordToken = resetToken;
       await user.save();
 

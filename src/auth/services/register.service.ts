@@ -44,6 +44,7 @@ export class RegisterService {
       otp,
       role: 'Officer',
       isEmailVerified: isAdmin,
+      status: 1,
     });
 
     const savedOfficer = await newOfficer.save();
@@ -97,6 +98,7 @@ export class RegisterService {
       otp,
       isEmailVerified: isAdmin,
       emailVerificationToken: isAdmin ? null : emailVerificationToken,
+      status: 1,
     });
 
     const savedCompany = await newCompany.save();

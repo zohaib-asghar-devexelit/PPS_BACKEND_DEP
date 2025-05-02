@@ -17,9 +17,54 @@ export class CompanyService {
 
 
   // Get all companies
-  async getAllCompanies(): Promise<Company[]> {
-    return this.companyModel.find().exec();
+  // async getAllCompanies(): Promise<Company[]> {
+  //   return this.companyModel.find().exec();
+  // }
+
+  async getAllCompanies(
+    page: number = 1,
+    limit: number = 10,
+    search: string = '',
+    filter: Record<string, any> = {},
+  ): Promise<{ data: Company[]; totalData: number; totalPages: number; currentPage: number; limit: number }> {
+    const skip = (page - 1) * limit;
+  
+    // Build the query object for filtering
+    const query: Record<string, any> = {};
+  
+    // Add search filter for company name (adjust this field as necessary)
+    if (search) {
+      query['name'] = { $regex: search, $options: 'i' }; // case-insensitive search
+    }
+  
+    // Add other filters to the query if provided
+    if (Object.keys(filter).length > 0) {
+      Object.assign(query, filter);
+    }
+  
+    // Fetch the companies with pagination, filters, and sorting (latest first)
+    const [companies, totalData] = await Promise.all([
+      this.companyModel
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }) // Sort by createdAt field in descending order (latest first)
+        .exec(),
+      this.companyModel.countDocuments(query).exec(), // Get the total count for pagination
+    ]);
+  
+    // Calculate total pages
+    const totalPages = Math.ceil(totalData / limit);
+  
+    return {
+      data: companies,
+      totalData,
+      totalPages,
+      currentPage: page,
+      limit,
+    };
   }
+  
 
   // Get a company by ID
   async getCompanyById(id: string): Promise<Company> {

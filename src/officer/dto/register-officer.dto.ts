@@ -1,6 +1,6 @@
 // src/auth/dto/register-officer.dto.ts
 
-import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsDateString, IsBoolean } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsDateString, IsBoolean,IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterOfficerDto {
@@ -101,4 +101,9 @@ export class RegisterOfficerDto {
   @IsOptional()
   @IsBoolean()
   isAdmin: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  status: number;
 }

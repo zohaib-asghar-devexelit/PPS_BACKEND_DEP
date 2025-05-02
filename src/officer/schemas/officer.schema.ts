@@ -59,6 +59,9 @@ export class Officer extends Document {
   
   @Prop({ default: false })
   isEmailVerified: boolean;
+
+  @Prop({ default: 0 }) // 0 for inactive, 1 for active, or as per your use case
+  status: number;
 }
 
 export const OfficerSchema = SchemaFactory.createForClass(Officer);

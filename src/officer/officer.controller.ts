@@ -1,4 +1,4 @@
-import { Controller, Body, Put, Param, Delete, Get } from '@nestjs/common';
+import { Controller, Body, Put, Param, Delete, Get, Query } from '@nestjs/common';
 import { OfficerService } from './officer.service';
 import { UpdateOfficerDto } from '../officer/dto/update-officer.dto'; // Assuming you have an update DTO
 import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger';
@@ -11,22 +11,37 @@ export class OfficerController {
   constructor(private readonly officerService: OfficerService) {}
 
   // Get a list of all officers
-  @Get('getAllOfficer')
-  @ApiOperation({ summary: 'Get all officers' })
-  @SwaggerApiResponse({
-    status: 200,
+  
+@Get('getAllOfficer')
+@ApiOperation({ summary: 'Get all officers with pagination and search' })
+@SwaggerApiResponse({
+  status: 200,
+  description: 'List of officers retrieved successfully',
+})
+async getAll(
+  @Query('page') page: number = 1,
+  @Query('limit') limit: number = 10,
+  @Query('search') search: string = '',
+) {
+  const result = await this.officerService.getAllOfficers({
+    page: Number(page),
+    limit: Number(limit),
+    search,
+  });
+
+  return {
+    statusCode: 200,
+    success: true,
     description: 'List of officers retrieved successfully',
-    type: [ApiResponse],
-  })
-  async getAll() {
-    const result = await this.officerService.getAllOfficers();
-    return {
-      statusCode: 200,
-      success: true,
-      description: 'List of officers retrieved successfully',
-      content: result,
-    };
-  }
+    content: result.data,
+    meta: {
+      totalData: result.totalData,
+      totalPages: result.totalPages,
+      currentPage: result.currentPage,
+      limit: result.limit,
+    },
+  };
+}
 
   // Get an officer by ID
   @Get('getOfficerbyId/:id')

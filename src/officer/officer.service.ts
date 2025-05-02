@@ -16,9 +16,55 @@ export class OfficerService {
   ) {}
 
   // Get all officers
-  async getAllOfficers(): Promise<Officer[]> {
-    return this.officerModel.find().exec();
+  // async getAllOfficers(): Promise<Officer[]> {
+  //   return this.officerModel.find().exec();
+  // }
+
+  async getAllOfficers(query: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<{
+    data: Officer[];
+    totalData: number;
+    totalPages: number;
+    currentPage: number;
+    limit: number;
+  }> {
+    const { page = 1, limit = 10, search = '' } = query;
+  
+    const filter: any = {};
+  
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        // Add more searchable fields if needed
+      ];
+    }
+  
+    const [data, totalData] = await Promise.all([
+      this.officerModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
+  
+      this.officerModel.countDocuments(filter),
+    ]);
+  
+    const totalPages = Math.ceil(totalData / limit);
+  
+    return {
+      data,
+      totalData,
+      totalPages,
+      currentPage: page,
+      limit,
+    };
   }
+  
 
   async getOfficerById(id: string): Promise<Officer> {
     const officer = await this.officerModel.findById(id).exec();

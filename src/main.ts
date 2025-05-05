@@ -10,26 +10,21 @@ let app: any;
 async function bootstrap() {
   if (!app) {
     app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
-    
     // Enable CORS
     app.enableCors();
-    
     // Swagger setup
     const config = new DocumentBuilder()
       .setTitle('Company Auth API')
       .setDescription('API for registering and authenticating companies')
       .setVersion('1.0')
       .build();
-    
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
-    
     // Initialize the app
     await app.init();
   }
   return app;
 }
-
 // For local development
 if (process.env.NODE_ENV !== 'production') {
   bootstrap().then((app) => {
@@ -40,13 +35,11 @@ if (process.env.NODE_ENV !== 'production') {
     });
   });
 }
-
 // Serverless handler for Vercel
 export const handler = async (req: any, res: any) => {
   const app = await bootstrap();
   const expressInstance = app.getHttpAdapter().getInstance();
   expressInstance(req, res);
 };
-
 // Default export for Vercel
 export default handler;

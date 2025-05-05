@@ -65,6 +65,17 @@ export class CompanyService {
     };
   }
   
+  async toggleStatus(id: string): Promise<Company> {
+    const company = await this.companyModel.findById(id);
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+  
+    const newStatus = company.status === 0 ? 1 : 0;
+    company.status = newStatus;
+    return company.save();
+  }
+  
 
   // Get a company by ID
   async getCompanyById(id: string): Promise<Company> {

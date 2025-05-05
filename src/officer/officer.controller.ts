@@ -1,4 +1,4 @@
-import { Controller, Body, Put, Param, Delete, Get, Query } from '@nestjs/common';
+import { Controller, Body, Put, Param, Delete, Get, Query,Patch } from '@nestjs/common';
 import { OfficerService } from './officer.service';
 import { UpdateOfficerDto } from '../officer/dto/update-officer.dto'; // Assuming you have an update DTO
 import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger';
@@ -40,6 +40,19 @@ async getAll(
       currentPage: result.currentPage,
       limit: result.limit,
     },
+  };
+}
+
+@Patch('toggleOfficerStatus/:id')
+@ApiOperation({ summary: 'Toggle Officer Status (active ↔ banned)' })
+@SwaggerApiResponse({ status: 200, description: 'Officer status toggled successfully' })
+async toggleOfficerStatus(@Param('id') id: string) {
+  const updatedOfficer = await this.officerService.toggleStatus(id);
+  return {
+    statusCode: 200,
+    success: true,
+    description: 'Officer status toggled successfully',
+    content: updatedOfficer,
   };
 }
 

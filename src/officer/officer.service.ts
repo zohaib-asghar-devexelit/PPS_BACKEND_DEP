@@ -74,6 +74,17 @@ export class OfficerService {
     return officer;
   }
 
+  async toggleStatus(id: string): Promise<Officer> {
+    const officer = await this.officerModel.findById(id);
+    if (!officer) {
+      throw new NotFoundException('Officer not found');
+    }
+  
+    const newStatus = officer.status === 0 ? 1 : 0;
+    officer.status = newStatus;
+    return officer.save();
+  }
+  
   // Update officer by ID
   async updateOfficer(id: string, updateData: Partial<RegisterOfficerDto>): Promise<Officer> {
     if (updateData.password || updateData.confirmPassword) {

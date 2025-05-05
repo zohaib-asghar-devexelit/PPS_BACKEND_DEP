@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   Query,
+  Patch
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { RegisterCompanyDto } from './dto/register-company.dto';
@@ -70,6 +71,19 @@ async getAll(
       currentPage: result.currentPage,
       limit: result.limit,
     },
+  };
+}
+
+@Patch('toggleCompanyStatus/:id')
+@ApiOperation({ summary: 'Toggle Company Status (active ↔ banned)' })
+@SwaggerApiResponse({ status: 200, description: 'Company status toggled successfully' })
+async toggleCompanyStatus(@Param('id') id: string) {
+  const updatedCompany = await this.companyService.toggleStatus(id);
+  return {
+    statusCode: 200,
+    success: true,
+    description: 'Company status toggled successfully',
+    content: updatedCompany,
   };
 }
 

@@ -2,8 +2,8 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { generateOtpEmailTemplate } from '../email-templates/otp-varification.template';
-import { generateEmailVerificationTemplate } from 'src/common/email-templates/email-varification.template';
-import { generateResetPasswordTemplate } from 'src/common/email-templates/reset-password.template';
+import { generateEmailVerificationTemplate } from '../email-templates/email-varification.template';
+import { generateResetPasswordTemplate } from '../email-templates/reset-password.template';
 
 @Injectable()
 export class MailService {

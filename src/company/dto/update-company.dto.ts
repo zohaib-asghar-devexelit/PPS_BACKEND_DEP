@@ -1,5 +1,5 @@
 // src/auth/dto/update-company.dto.ts
-import { IsString, IsEmail, IsOptional, IsPhoneNumber,IsBoolean,IsNumber } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsPhoneNumber,IsBoolean,IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateCompanyDto {
@@ -100,6 +100,6 @@ export class UpdateCompanyDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsNumber()
+  @IsIn([0, 1])
   status: number;
 }

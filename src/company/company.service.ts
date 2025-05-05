@@ -156,7 +156,6 @@ export class CompanyService {
       await company.save();
   
       const link = `https://yourdomain.com/verify-email?token=${verificationToken}`;
-      // const emailHtml = generateEmailVerificationTemplate(link);
   
       await this.mailerService.sendEmailVerificationLink(email, link);
 

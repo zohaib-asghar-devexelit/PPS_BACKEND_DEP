@@ -1,7 +1,6 @@
 node_modules
 test
-**/*.spec.ts
-**/*.test.ts
+coverage
 .git
-.gitignore
 README.md
+.env

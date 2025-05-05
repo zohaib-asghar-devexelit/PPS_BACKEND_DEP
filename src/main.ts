@@ -21,10 +21,11 @@ if (process.env.NODE_ENV !== 'production') {
   bootstrap().then((app) => {
     const port = process.env.PORT || 3002;
     app.getHttpAdapter().getInstance().listen(port, () => {
-      console.log(`🚀 Server running on http://localhost:${port}`);
+      console.log(`🚀 Server running on this http://localhost:${port}`);
     });
   });
 }
+
 
 // Vercel serverless handler
 export const handler = async (req: Request, res: Response) => {

@@ -1,5 +1,21 @@
 {
   "version": 2,
+  "functions": {
+    "api/index.ts": {
+      "runtime": "@vercel/node",
+      "includeFiles": [
+        "dist/**"
+      ],
+      "excludeFiles": [
+        "node_modules/.prisma/**",
+        "node_modules/typescript/**",
+        "node_modules/@nestjs/cli/**",
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "**/__tests__/**"
+      ]
+    }
+  },
   "builds": [
     {
       "src": "src/main.ts",
@@ -24,20 +40,5 @@
                 "PATCH"
             ]
         }
-    ],
-    "functions": {
-    "api/index.ts": {
-      "includeFiles": [
-        "dist/**"
-      ],
-      "excludeFiles": [
-        "node_modules/.prisma/**",
-        "node_modules/typescript/**",
-        "node_modules/@nestjs/cli/**",
-        "**/*.spec.ts",
-        "**/*.test.ts",
-        "**/__tests__/**"
-      ]
-    }
-  }
+    ]
 }

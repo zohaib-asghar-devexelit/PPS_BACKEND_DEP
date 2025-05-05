@@ -1,9 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as express from 'express';
+import { Server } from 'http';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+const expressApp = express();
+
+let cachedServer: Server;
+
+async function bootstrap(): Promise<Server> {
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
 
   const config = new DocumentBuilder()
     .setTitle('Company Auth API')
@@ -12,8 +19,15 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // Swagger UI at /api
+  SwaggerModule.setup('api', app, document);
 
-  await app.listen(process.env.PORT ?? 3333);
+  await app.init();
+  return expressApp;
 }
-bootstrap();
+
+export default async function handler(req: any, res: any) {
+  if (!cachedServer) {
+    cachedServer = await bootstrap();
+  }
+  return cachedServer(req, res);
+}

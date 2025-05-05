@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { generateOtpEmailTemplate } from '../email-templates/otp-varification.template';
-import { generateEmailVerificationTemplate } from 'src/common/email-templates/email-varification.template';
+// import { generateEmailVerificationTemplate } from 'src/common/email-templates/email-varification.template';
 import { generateResetPasswordTemplate } from 'src/common/email-templates/reset-password.template';
 
 @Injectable()
@@ -56,12 +56,12 @@ export class MailService {
   }
 
   async sendEmailVerificationLink(to: string, link: string) {
-    const html = generateEmailVerificationTemplate(link);
+    // const html = generateEmailVerificationTemplate(link);
     const mailOptions = {
       from: `"PPS" <${process.env.EMAIL_USER}>`,
       to,
       subject: 'Verify Your PPS Email Address',
-      html,
+      html: link,
     };
     await this.transporter.sendMail(mailOptions);
   }

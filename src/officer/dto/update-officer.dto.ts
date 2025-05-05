@@ -1,6 +1,6 @@
 // src/auth/dto/update-officer.dto.ts
 
-import { IsString, IsEmail, IsOptional, IsPhoneNumber, IsDateString,IsBoolean } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsPhoneNumber, IsDateString,IsBoolean,IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateOfficerDto {
@@ -105,4 +105,9 @@ export class UpdateOfficerDto {
   @IsOptional()
   @IsString()
   resetPasswordToken?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsIn([0, 1])
+  status: number;
 }

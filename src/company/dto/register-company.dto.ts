@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsBoolean } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsBoolean,IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterCompanyDto {
@@ -111,4 +111,9 @@ export class RegisterCompanyDto {
   @IsOptional()
   @IsString()
   resetPasswordToken?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsIn([0, 1])
+  status: number;
 }

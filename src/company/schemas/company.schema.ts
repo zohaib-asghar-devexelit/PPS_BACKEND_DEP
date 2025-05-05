@@ -67,6 +67,9 @@ export class Company extends Document {
 
   @Prop({ required: false })
   resetPasswordToken?: string;
+
+  @Prop({ default: 0 }) // 0 for inactive, 1 for active, or as per your use case
+  status: number;
 }
 
 export const CompanySchema = SchemaFactory.createForClass(Company);

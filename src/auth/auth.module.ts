@@ -10,6 +10,8 @@ import { ForgotPasswordController } from './controllers/forgot-password.controll
 import { RegisterController } from './controllers/auth.controller';
 import { CompanyModule } from '../company/company.module';
 import { OfficerModule } from '../officer/officer.module';
+import { ChangePasswordService } from './services/change-password.service';
+
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { OfficerModule } from '../officer/officer.module';
     CompanyModule,
     OfficerModule,
   ],
-  providers: [JwtStrategy, MailService, ForgotPasswordService, LoginService, RegisterService],
+  providers: [JwtStrategy, MailService, ForgotPasswordService, LoginService, RegisterService,ChangePasswordService],
   controllers: [ForgotPasswordController, RegisterController],
   exports: [MailService, ForgotPasswordService, LoginService],
 })

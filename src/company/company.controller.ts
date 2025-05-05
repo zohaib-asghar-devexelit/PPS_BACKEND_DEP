@@ -6,73 +6,87 @@ import {
   Param,
   Put,
   Delete,
+  Query,
+  Patch
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { RegisterCompanyDto } from './dto/register-company.dto';
-// import { ForgotPasswordDto } from '../dto/forgot-password.dto'; 
 import {
   ApiTags,
   ApiOperation,
   ApiResponse as SwaggerApiResponse,
+  ApiQuery 
 } from '@nestjs/swagger';
 import { ApiResponse } from '../auth/dto/api-response.dto';
 import { NotFoundException } from '@nestjs/common';
-// import { VerifyOtpDto } from '../dto/verify-otp.dto';
 
 @ApiTags('Company')
 @Controller('company')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
-  // Register a new company
-  // Register a new company
-  // @Post('register')
-  // @ApiOperation({ summary: 'Register a new company' })
+  // Get all companies
+  // @Get('getAllCompanies')
+  // @ApiOperation({ summary: 'Get all companies' })
   // @SwaggerApiResponse({
   //   status: 200,
-  //   description: 'Company registered successfully',
-  //   type: ApiResponse,
+  //   description: 'List of all companies',
+  //   type: [ApiResponse],
   // })
-  // @SwaggerApiResponse({
-  //   status: 409,
-  //   description: 'Company email already exists',
-  //   type: ApiResponse,
-  // })
-  // async register(@Body() dto: RegisterCompanyDto) {
-  //   const { company, token } = await this.companyService.register(dto); // Assuming the service returns token & company
+  // async getAll() {
+  //   const result = await this.companyService.getAllCompanies();
   //   return {
   //     statusCode: 200,
   //     success: true,
-  //     description: 'Company registered successfully',
-  //     content: {
-  //       company, // company details
-  //       token, // JWT token
-  //     },
+  //     description: 'Companies retrieved successfully',
+  //     content: result,
   //   };
   // }
-
-  // @Post('verify-otp')
-  // async verifyOtp(@Body() dto: VerifyOtpDto) {
-  //   return this.companyService.verifyOtp(dto);
-  // }
-
-  // Get all companies
+  
   @Get('getAllCompanies')
-  @ApiOperation({ summary: 'Get all companies' })
-  @SwaggerApiResponse({
-    status: 200,
-    description: 'List of all companies',
-    type: [ApiResponse],
-  })
-  async getAll() {
-    const result = await this.companyService.getAllCompanies();
-    return {
-      statusCode: 200,
-      success: true,
-      description: 'Companies retrieved successfully',
-      content: result,
-    };
-  }
+@ApiOperation({ summary: 'Get all companies with pagination and search' })
+@ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number for pagination (default: 1)' })
+@ApiQuery({ name: 'limit', required: false, type: Number, description: 'Limit the number of companies per page (default: 10)' })
+@ApiQuery({ name: 'search', required: false, type: String, description: 'Search term for filtering companies by name' })
+@SwaggerApiResponse({
+  status: 200,
+  description: 'List of companies retrieved successfully',
+  type: ApiResponse,  // Adjust this to the appropriate response DTO
+})
+async getAll(
+  @Query('page') page: number = 1,
+  @Query('limit') limit: number = 10,
+  @Query('search') search: string = '',
+) {
+  const result = await this.companyService.getAllCompanies(page, limit, search);
+
+  return {
+    statusCode: 200,
+    success: true,
+    description: 'List of companies retrieved successfully',
+    content: result.data,
+    meta: {
+      totalData: result.totalData,
+      totalPages: result.totalPages,
+      currentPage: result.currentPage,
+      limit: result.limit,
+    },
+  };
+}
+
+@Patch('toggleCompanyStatus/:id')
+@ApiOperation({ summary: 'Toggle Company Status (active ↔ banned)' })
+@SwaggerApiResponse({ status: 200, description: 'Company status toggled successfully' })
+async toggleCompanyStatus(@Param('id') id: string) {
+  const updatedCompany = await this.companyService.toggleStatus(id);
+  return {
+    statusCode: 200,
+    success: true,
+    description: 'Company status toggled successfully',
+    content: updatedCompany,
+  };
+}
+
 
   // Get a company by ID
   @Get('getCompanyById/:id')
@@ -175,38 +189,4 @@ export class CompanyController {
       throw error;
     }
   }
-
-  // @Post('forgot-password')
-  // @ApiOperation({ summary: 'Send password reset or verification link' })
-  // @SwaggerApiResponse({
-  //   status: 200,
-  //   description: 'Reset or verification link sent successfully',
-  //   type: ApiResponse,
-  // })
-  // @SwaggerApiResponse({
-  //   status: 404,
-  //   description: 'Company not found',
-  //   type: ApiResponse,
-  // })
-  // async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-  //   try {
-  //     const result = await this.companyService.sendResetPasswordLink(forgotPasswordDto.email);
-  //     return {
-  //       statusCode: 200,
-  //       success: true,
-  //       description: 'Reset or verification link sent successfully',
-  //       content: result,
-  //     };
-  //   } catch (error) {
-  //     if (error instanceof NotFoundException) {
-  //       return {
-  //         statusCode: 404,
-  //         success: false,
-  //         description: error.message,
-  //       };
-  //     }
-  //     throw error;
-  //   }
-  // }
-
 }

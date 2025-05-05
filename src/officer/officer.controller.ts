@@ -1,89 +1,60 @@
-import { Controller, Body, Put, Param, Delete, Get } from '@nestjs/common';
+import { Controller, Body, Put, Param, Delete, Get, Query,Patch } from '@nestjs/common';
 import { OfficerService } from './officer.service';
-// import { RegisterOfficerDto } from '../dto/register-officer.dto';
 import { UpdateOfficerDto } from '../officer/dto/update-officer.dto'; // Assuming you have an update DTO
 import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger';
 import { ApiResponse } from '../auth/dto/api-response.dto';
-// import { VerifyOtpDto } from '../dto/verify-otp.dto';
-// import { LoginOfficerDto } from '../dto/login.dto';
+
 
 @ApiTags('Officer')
 @Controller('officer')
 export class OfficerController {
   constructor(private readonly officerService: OfficerService) {}
 
-  // @Post('login')
-  // @ApiOperation({ summary: 'Login an officer' })
-  // @SwaggerApiResponse({
-  //   status: 200,
-  //   description: 'Login successful and JWT token returned',
-  //   type: ApiResponse,
-  // })
-  // @SwaggerApiResponse({
-  //   status: 401,
-  //   description: 'Invalid credentials or email not verified',
-  //   type: SwaggerApiResponse,
-  // })
-  // async login(@Body() loginOfficerDto: LoginOfficerDto) {
-  //   const { token, officer } = await this.officerService.login(loginOfficerDto);
-  //   return {
-  //     statusCode: 200,
-  //     success: true,
-  //     description: 'Login successful',
-  //     content: {
-  //       officer,
-  //       token,
-  //     },
-  //   };
-  // }
-
-  // Register a new officer
-//   @Post('register')
-// @ApiOperation({ summary: 'Register a new officer' })
-// @SwaggerApiResponse({
-//   status: 200,
-//   description: 'Officer registered successfully',
-//   type: ApiResponse,
-// })
-// @SwaggerApiResponse({
-//   status: 409,
-//   description: 'Officer email already exists',
-//   type: ApiResponse,
-// })
-// async register(@Body() dto: RegisterOfficerDto) {
-//   const { officer, token } = await this.officerService.registerOfficer(dto);
-//   return {
-//     statusCode: 200,
-//     success: true,
-//     description: 'Officer registered successfully',
-//     content: {
-//       officer,
-//       token,
-//     },
-//   };
-// }
-// @Post('verify-otp')
-// async verifyOtp(@Body() dto: VerifyOtpDto) {
-//   return this.officerService.verifyOtp(dto);
-// }
-
   // Get a list of all officers
-  @Get('getAllOfficer')
-  @ApiOperation({ summary: 'Get all officers' })
-  @SwaggerApiResponse({
-    status: 200,
+  
+@Get('getAllOfficer')
+@ApiOperation({ summary: 'Get all officers with pagination and search' })
+@SwaggerApiResponse({
+  status: 200,
+  description: 'List of officers retrieved successfully',
+})
+async getAll(
+  @Query('page') page: number = 1,
+  @Query('limit') limit: number = 10,
+  @Query('search') search: string = '',
+) {
+  const result = await this.officerService.getAllOfficers({
+    page: Number(page),
+    limit: Number(limit),
+    search,
+  });
+
+  return {
+    statusCode: 200,
+    success: true,
     description: 'List of officers retrieved successfully',
-    type: [ApiResponse],
-  })
-  async getAll() {
-    const result = await this.officerService.getAllOfficers();
-    return {
-      statusCode: 200,
-      success: true,
-      description: 'List of officers retrieved successfully',
-      content: result,
-    };
-  }
+    content: result.data,
+    meta: {
+      totalData: result.totalData,
+      totalPages: result.totalPages,
+      currentPage: result.currentPage,
+      limit: result.limit,
+    },
+  };
+}
+
+@Patch('toggleOfficerStatus/:id')
+@ApiOperation({ summary: 'Toggle Officer Status (active ↔ banned)' })
+@SwaggerApiResponse({ status: 200, description: 'Officer status toggled successfully' })
+async toggleOfficerStatus(@Param('id') id: string) {
+  const updatedOfficer = await this.officerService.toggleStatus(id);
+  return {
+    statusCode: 200,
+    success: true,
+    description: 'Officer status toggled successfully',
+    content: updatedOfficer,
+  };
+}
 
   // Get an officer by ID
   @Get('getOfficerbyId/:id')

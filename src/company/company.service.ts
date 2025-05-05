@@ -162,7 +162,7 @@ export class CompanyService {
     }
     
 
-    return { message: 'Link sent successfully' };
+    return { message: 'the Link sent successfully' };
   }
 
 }

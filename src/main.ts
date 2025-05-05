@@ -26,20 +26,20 @@ async function bootstrap() {
   return app;
 }
 // For local development
-if (process.env.NODE_ENV !== 'production') {
-  bootstrap().then((app) => {
-    const port = process.env.PORT || 3333;
-    app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-      console.log(`Swagger documentation available at http://localhost:${port}/api`);
-    });
-  });
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   bootstrap().then((app) => {
+//     const port = process.env.PORT || 3333;
+//     app.listen(port, () => {
+//       console.log(`Server running on port ${port}`);
+//       console.log(`Swagger documentation available at http://localhost:${port}/api`);
+//     });
+//   });
+// }
 // Serverless handler for Vercel
 export const handler = async (req: any, res: any) => {
   const app = await bootstrap();
-  const expressInstance = app.getHttpAdapter().getInstance();
-  expressInstance(req, res);
+  app.getHttpAdapter().getInstance()(req, res);
 };
-// Default export for Vercel
+ 
+ 
 export default handler;

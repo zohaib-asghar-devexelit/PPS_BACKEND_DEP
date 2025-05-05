@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { generateOtpEmailTemplate } from '../email-templates/otp-varification.template';
 // import { generateEmailVerificationTemplate } from 'src/common/email-templates/email-varification.template';
-import { generateResetPasswordTemplate } from 'src/common/email-templates/reset-password.template';
+// import { generateResetPasswordTemplate } from 'src/common/email-templates/reset-password.template';
 
 @Injectable()
 export class MailService {
@@ -45,12 +45,12 @@ export class MailService {
   }
 
   async sendResetPasswordLink(to: string, link: string) {
-    const html = generateResetPasswordTemplate(link);
+    // const html = generateResetPasswordTemplate(link);
     const mailOptions = {
       from: `"PPS" <${process.env.EMAIL_USER}>`,
       to,
       subject: 'Reset Your PPS Password',
-      html,
+      html:link,
     };
     await this.transporter.sendMail(mailOptions);
   }

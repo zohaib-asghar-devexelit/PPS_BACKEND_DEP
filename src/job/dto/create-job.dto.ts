@@ -14,16 +14,16 @@ export class CreateJobDto {
   @IsNotEmpty()
   companyId: Types.ObjectId;
 
-  @ApiPropertyOptional({
-    example: ['60e8b3b1f39c1c3a4c8d3a0f', '60e8b3b1f39c1c3a4c8d3a10'],
-    description: 'Optional list of officer ObjectIds already assigned to the job',
-    isArray: true,
-    type: String,
-  })
-  @IsOptional()
-  @IsArray()
-  @IsMongoId({ each: true })
-  assignedOfficers?: string[];
+  // @ApiPropertyOptional({
+  //   example: ['60e8b3b1f39c1c3a4c8d3a0f', '60e8b3b1f39c1c3a4c8d3a10'],
+  //   description: 'Optional list of officer ObjectIds already assigned to the job',
+  //   isArray: true,
+  //   type: String,
+  // })
+  // @IsOptional()
+  // @IsArray()
+  // @IsMongoId({ each: true })
+  // assignedOfficers?: string[];
 
   @ApiProperty({ example: 'Night Watch Duty' })
   @IsNotEmpty()

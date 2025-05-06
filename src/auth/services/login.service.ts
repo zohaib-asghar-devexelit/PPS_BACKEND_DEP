@@ -15,45 +15,96 @@ export class LoginService {
     @InjectModel('Company') private readonly companyModel: Model<Company>,
   ) {}
 
-  async login(loginDto: LoginOfficerDto): Promise<{ token: string; user: Officer | Company }> {
+  // async login(loginDto: LoginOfficerDto): Promise<{ token: string; user: Officer | Company }> {
+  //   const { emailAddress, Password } = loginDto;
+
+  //   // Try company first
+  //   let user = await this.companyModel.findOne({ emailAddress });
+  //   if (!user) {
+  //     // Try officer next
+  //     user = await this.officerModel.findOne({ emailAddress });
+  //   }
+
+  //   if (!user) {
+  //     throw new UnauthorizedException('Invalid credentials');
+  //   }
+  //   const hashedPassword = user.password || user.password;
+  // if (!hashedPassword) {
+  //   throw new UnauthorizedException('Password not set for this account');
+  // }
+
+  // const isPasswordValid = await bcrypt.compare(Password, hashedPassword);
+  // if (!isPasswordValid) {
+  //   throw new UnauthorizedException('Invalid password');
+  // }
+
+  //   if (!user.isEmailVerified) {
+  //     throw new UnauthorizedException('Email not verified');
+  //   }
+
+  //   const payload = {
+  //     sub: user._id,
+  //     email: user.emailAddress,
+  //     // no role included here
+  //   };
+
+  //   const token = this.jwtService.sign(payload);
+
+  //   return {
+  //     token,
+  //     user,
+  //   };
+  // }
+
+  async login(loginDto: LoginOfficerDto): Promise<{
+    token: string;
+    user: Officer | Company;
+    accountType: "officer" | "company";
+  }> {
     const { emailAddress, Password } = loginDto;
-
-    // Try company first
+  
     let user = await this.companyModel.findOne({ emailAddress });
-    if (!user) {
-      // Try officer next
+    let accountType: "officer" | "company"; // no `null`
+  
+    if (user) {
+      accountType = "company";
+    } else {
       user = await this.officerModel.findOne({ emailAddress });
+      if (user) {
+        accountType = "officer";
+      } else {
+        throw new UnauthorizedException('Invalid credentials');
+      }
     }
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+  
+    const hashedPassword = user.password;
+    if (!hashedPassword) {
+      throw new UnauthorizedException('Password not set for this account');
     }
-    console.log("===>User",user,user.password)
-    const hashedPassword = user.password || user.password;
-  if (!hashedPassword) {
-    throw new UnauthorizedException('Password not set for this account');
-  }
-
-  const isPasswordValid = await bcrypt.compare(Password, hashedPassword);
-  if (!isPasswordValid) {
-    throw new UnauthorizedException('Invalid password');
-  }
-
+  
+    const isPasswordValid = await bcrypt.compare(Password, hashedPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
+    }
+  
     if (!user.isEmailVerified) {
       throw new UnauthorizedException('Email not verified');
     }
-
+  
     const payload = {
       sub: user._id,
       email: user.emailAddress,
-      // no role included here
+      role: accountType,
     };
-
+  
     const token = this.jwtService.sign(payload);
-
+  
     return {
       token,
       user,
+      accountType,
     };
   }
+  
+  
 }

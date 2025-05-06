@@ -7,6 +7,8 @@ import {
   } from '@nestjs/common';
   import { FileInterceptor } from '@nestjs/platform-express';
   import { AwsS3Service } from './aws-s3.service';
+  import { ApiOperation, ApiConsumes, ApiBody,ApiProperty } from '@nestjs/swagger';
+  import { IsString, IsOptional } from 'class-validator';
   
   // Define a custom interface for the file
   interface MulterFile {
@@ -21,11 +23,24 @@ import {
     path?: string;
   }
   
+  class FileUploadDto {
+    @IsString()
+    @IsOptional()
+    @ApiProperty()
+    file?: string; // You can add extra fields for more details, if required
+  }
+
   @Controller('upload')
   export class AwsS3Controller {
     constructor(private readonly awsS3Service: AwsS3Service) {}
   
     @Post('uploadFile')
+    @ApiOperation({ summary: 'Upload a file to AWS S3' })
+    @ApiConsumes('multipart/form-data') // Describes that this endpoint expects form-data
+    @ApiBody({
+      description: 'The file to upload. Only JPG, PNG, JPEG, and PDF files are allowed.',
+      type: FileUploadDto,
+    })
     @UseInterceptors(FileInterceptor('file'))
     async uploadFile(@UploadedFile() file: MulterFile) {
       // Check if file exists

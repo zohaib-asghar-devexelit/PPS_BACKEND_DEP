@@ -8,7 +8,7 @@ export class RegisterCompanyDto {
   companyName: string;
 
   @ApiProperty()
-  @IsEmail()
+  @IsEmail({}, { message: 'Invalid email format' })
   @IsNotEmpty()
   emailAddress: string;
 

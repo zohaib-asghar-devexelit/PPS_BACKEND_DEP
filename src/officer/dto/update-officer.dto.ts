@@ -64,11 +64,6 @@ export class UpdateOfficerDto {
   @IsString()
   document?: string;
 
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  preferredWorkingArea?: string;
-
   @ApiProperty({
     example: 'Mon to Fri, 8 AM to 6 PM',
   })

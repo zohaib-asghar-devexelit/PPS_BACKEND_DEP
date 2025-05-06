@@ -13,12 +13,14 @@ import { UpdateJobDto } from './dto/update-job.dto';
 import { JobStatus } from '../common/enums/jobstatus.enum';
 import { Company } from '../company/schemas/company.schema';
 import { SetPricingDto } from './dto/set-pricing.dto';
+import { Officer } from '../officer/schemas/officer.schema';
 
 @Injectable()
 export class JobService {
   constructor(
     @InjectModel(Job.name) private jobModel: Model<Job>,
     @InjectModel(Company.name) private companyModel: Model<Company>,
+    @InjectModel(Officer.name) private officerModel: Model<Officer>,
   ) {}
 
   async createJob(dto: CreateJobDto): Promise<Job> {
@@ -159,9 +161,14 @@ export class JobService {
 
   async applyForJob(jobId: string, officerId: string): Promise<Job> {
     const job = await this.jobModel.findById(jobId);
-    if (!job) throw new NotFoundException('Job not found');
+    if (!job) throw new BadRequestException('Job not found');
   
     const officerObjectId = new Types.ObjectId(officerId);
+  
+    const officer = await this.officerModel.findById(officerId);
+    if (!officer) {
+      throw new BadRequestException('Officer not found');
+    }
   
     // Check if already assigned - using toString() for comparison
     if (job.assignedOfficers.some((id) => id.toString() === officerObjectId.toString())) {

@@ -10,7 +10,7 @@ export class UpdateCompanyDto {
 
   @ApiProperty()
   @IsOptional()  // Makes it optional for updates
-  @IsEmail()
+  @IsEmail({}, { message: 'Invalid email format' })
   emailAddress?: string;
 
   @ApiProperty()

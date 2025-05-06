@@ -6,6 +6,8 @@ import { mongooseConfig } from './config/mongoose.config';
 import { CompanyModule } from './company/company.module';
 import { OfficerModule } from './officer/officer.module';
 import { JobModule } from './job/job.module';
+import { IndustryModule } from './industry/industry.module';
+import { AwsS3Module } from './aws-s3/aws-s3.module'; // <-- import your AwsS3Module here
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { JobModule } from './job/job.module';
     CompanyModule,
     OfficerModule,
     JobModule,
+    IndustryModule,
+    AwsS3Module, // <-- add AwsS3Module to the imports array
   ],
 })
 export class AppModule {}

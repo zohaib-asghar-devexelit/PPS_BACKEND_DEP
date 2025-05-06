@@ -84,9 +84,14 @@ export class RegisterService {
       emergencyContactInfo,
     } = registerOfficerDto;
   
+
     // ❌ isAdmin is missing
     if (typeof isAdmin === 'undefined' || isAdmin === null) {
       throw new BadRequestException('isAdmin field is required');
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailAddress)) {
+      throw new BadRequestException('Invalid email address format');
     }
   
     // Normalize email
@@ -111,8 +116,8 @@ export class RegisterService {
       if (!state) missingFields.push('state');
       if (!zipCode) missingFields.push('zipCode');
       if (!socialSecurityNumber) missingFields.push('socialSecurityNumber');
-      if (!availability) missingFields.push('availability');
-      if (!emergencyContactInfo) missingFields.push('emergencyContactInfo');
+      // if (!availability) missingFields.push('availability');
+      // if (!emergencyContactInfo) missingFields.push('emergencyContactInfo');
     
       if (missingFields.length > 0) {
         throw new BadRequestException(`Missing required fields: ${missingFields.join(', ')}`);
@@ -243,7 +248,13 @@ export class RegisterService {
   async registerCompany(createCompanyDto: RegisterCompanyDto): Promise<{ token: string; company: Company }> {
     const { isAdmin, emailAddress, companyName, password, confirmPassword, phoneNumber, companyAddress, street, city, state, zipCode, registrationNumber, taxId, industry, fullName, contactEmail, role } = createCompanyDto;
     const requiredFields: string[] = [];
-  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (typeof isAdmin === 'undefined' || isAdmin === null) {
+      throw new BadRequestException('isAdmin field is required');
+    }
+    if (!emailRegex.test(emailAddress)) {
+      throw new BadRequestException('Invalid email address format');
+    }
     if (!isAdmin) {
       if (!companyName) requiredFields.push('companyName');
       if (!emailAddress) requiredFields.push('emailAddress');
@@ -256,7 +267,7 @@ export class RegisterService {
       if (!state) requiredFields.push('state');
       if (!zipCode) requiredFields.push('zipCode');
       if (!registrationNumber) requiredFields.push('registrationNumber');
-      if (!taxId) requiredFields.push('taxId');
+      // if (!taxId) requiredFields.push('taxId');
       if (!industry) requiredFields.push('industry');
       if (!fullName) requiredFields.push('fullName');
       if (!contactEmail) requiredFields.push('contactEmail');

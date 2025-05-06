@@ -37,8 +37,8 @@ export class OfficerService {
   
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
+        { fullName: { $regex: search, $options: 'i' } },
+        { emailAddress: { $regex: search, $options: 'i' } },
         // Add more searchable fields if needed
       ];
     }

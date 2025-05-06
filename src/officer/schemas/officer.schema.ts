@@ -45,9 +45,6 @@ export class Officer extends Document {
   document?: string;
 
   @Prop({ required: false })
-  preferredWorkingArea: string;
-
-  @Prop({ required: false })
   availability: string; // e.g. "Mon to Fri, 8 AM to 6 PM"
 
   @Prop({ required: false })

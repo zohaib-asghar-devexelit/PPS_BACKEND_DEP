@@ -48,13 +48,20 @@ async getAll(
 @SwaggerApiResponse({ status: 200, description: 'Officer status toggled successfully' })
 async toggleOfficerStatus(@Param('id') id: string) {
   const updatedOfficer = await this.officerService.toggleStatus(id);
+
+  const message =
+    updatedOfficer.status === 1
+      ? 'Officer activated successfully'
+      : 'Officer banned successfully';
+
   return {
     statusCode: 200,
     success: true,
-    description: 'Officer status toggled successfully',
+    description: message,
     content: updatedOfficer,
   };
 }
+
 
   // Get an officer by ID
   @Get('getOfficerbyId/:id')

@@ -69,11 +69,6 @@ export class RegisterOfficerDto {
   @IsString()
   document?: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  preferredWorkingArea: string;
-
   @ApiProperty({
     example: 'Mon to Fri, 8 AM to 6 PM',
   })

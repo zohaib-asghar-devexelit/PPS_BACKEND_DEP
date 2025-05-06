@@ -160,28 +160,28 @@ export class JobService {
   async applyForJob(jobId: string, officerId: string): Promise<Job> {
     const job = await this.jobModel.findById(jobId);
     if (!job) throw new NotFoundException('Job not found');
-
+  
     const officerObjectId = new Types.ObjectId(officerId);
-
-    // Check if already assigned
-    if (job.assignedOfficers.some((id) => id.equals(officerObjectId))) {
+  
+    // Check if already assigned - using toString() for comparison
+    if (job.assignedOfficers.some((id) => id.toString() === officerObjectId.toString())) {
       throw new BadRequestException('Officer already applied for this job');
     }
-
+  
     // Check if positions are already full
     if (job.assignedOfficers.length >= job.officersRequired) {
       throw new BadRequestException(
         'All positions for this job are already filled',
       );
     }
-
+  
     job.assignedOfficers.push(officerObjectId);
-
+  
     // If filled after this assignment, update status to CLOSED
     if (job.assignedOfficers.length === job.officersRequired) {
       job.status = JobStatus.CLOSED;
     }
-
+  
     return job.save();
   }
 

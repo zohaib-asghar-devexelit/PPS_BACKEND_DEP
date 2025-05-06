@@ -51,11 +51,16 @@ export class RegisterController {
       throw error;
     }
   }
+  
   @Post('officer-register')
   @ApiOperation({ summary: 'Register a new officer' })
   @SwaggerApiResponse({
     status: 200,
     description: 'Officer registered successfully',
+  })
+  @SwaggerApiResponse({
+    status: 400,
+    description: 'Validation failed',
   })
   @SwaggerApiResponse({
     status: 409,
@@ -73,6 +78,7 @@ export class RegisterController {
       },
     };
   }
+  
 
   @Post('company-register')
   @ApiOperation({ summary: 'Register a new company' })

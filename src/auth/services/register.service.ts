@@ -242,12 +242,9 @@ export class RegisterService {
 
   async registerCompany(createCompanyDto: RegisterCompanyDto): Promise<{ token: string; company: Company }> {
     const { isAdmin, emailAddress, companyName, password, confirmPassword, phoneNumber, companyAddress, street, city, state, zipCode, registrationNumber, taxId, industry, fullName, contactEmail, role } = createCompanyDto;
-  
-    // Check if admin or user is registering
     const requiredFields: string[] = [];
   
     if (!isAdmin) {
-      // For non-admin registration, all these fields are required
       if (!companyName) requiredFields.push('companyName');
       if (!emailAddress) requiredFields.push('emailAddress');
       if (!phoneNumber) requiredFields.push('phoneNumber');
@@ -268,36 +265,24 @@ export class RegisterService {
       if (requiredFields.length > 0) {
         throw new BadRequestException(`Missing required fields: ${requiredFields.join(', ')}`);
       }
-  
-      // Ensure passwords match for non-admin
       if (password !== confirmPassword) {
         throw new BadRequestException('Passwords do not match');
       }
     }
-  
-    // Check for existing company or email
     const [existingOfficer, existingCompany] = await Promise.all([
       this.officerModel.findOne({ emailAddress }),
       this.companyModel.findOne({ emailAddress }),
     ]);
-  
     if (existingOfficer || existingCompany) {
       throw new ConflictException('An account with this email address already exists');
     }
-  
-    // Check for existing company name
     const companyNameExists = await this.companyModel.findOne({ companyName });
     if (companyNameExists) {
       throw new ConflictException('Company name already exists');
     }
-  
-  
-    // Handle admin case
     const finalPassword = isAdmin ? generateRandomPassword(8) : password;
     const hashedPassword = await bcrypt.hash(finalPassword, 10);
     const otp = generateOTP();
-  
-    // Create email verification token for non-admins
     const emailVerificationToken = isAdmin
       ? null
       : this.jwtService.sign({ sub: emailAddress }, { secret: process.env.JWT_SECRET, expiresIn: '15m' });
@@ -308,45 +293,34 @@ export class RegisterService {
       otp,
       isEmailVerified: isAdmin,
       emailVerificationToken,
-      status: 1, // Assuming 1 is for active status
+      status: 1, 
     });
   
     const savedCompany = await newCompany.save();
-  
-    // Send OTP or Admin credentials email based on admin status
     if (isAdmin) {
       await this.mailerService.sendAdminCredentialsEmail(emailAddress, finalPassword);
     } else {
       await this.sendOtpToUser(emailAddress, otp);
     }
-  
-    // Generate JWT token
     const token = this.jwtService.sign({
       sub: savedCompany._id,
       email: savedCompany.emailAddress,
       role: 'company',
     });
-  
     return { token, company: savedCompany };
   }
   
-
-  // OTP Verification
   async verifyOtp(payload: { id: string; otp: string; email?: string }): Promise<{ message: string }> {
     const { id, otp, email } = payload;
-
     let user = await this.companyModel.findById(id);
     let userType = 'company';
-
     if (!user) {
       user = await this.officerModel.findById(id);
       userType = 'officer';
     }
-
     if (!user) {
       throw new Error('User not found');
     }
-
     if (email && user.emailAddress !== email) {
       user.emailAddress = email;
       user.otp = generateOTP();
@@ -354,31 +328,23 @@ export class RegisterService {
       await this.sendOtpToUser(email, user.otp);
       return { message: 'Email updated and OTP sent to new email address' };
     }
-
     if (user.otp !== otp) {
       throw new Error('Invalid OTP');
     }
-
     user.isEmailVerified = true;
     user.otp = undefined;
     await user.save();
-
     return { message: `${userType} email verified successfully` };
   }
-
-  // ✅ Shared method for sending OTP
   private async sendOtpToUser(email: string, otp: string): Promise<void> {
     await this.mailerService.sendOTPEmail(email, otp);
   }
-
   async resendOtp(id: string): Promise<{ message: string }> {
     const user = await this.companyModel.findById(id) || await this.officerModel.findById(id);
     if (!user) throw new Error('User not found');
-  
     user.otp = generateOTP();
     await user.save();
     await this.sendOtpToUser(user.emailAddress, user.otp);
-  
     return { message: 'OTP resent successfully' };
   }
   

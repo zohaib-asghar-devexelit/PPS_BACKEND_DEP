@@ -165,7 +165,7 @@ export class RegisterService {
       password: hashedPassword,
       confirmPassword: finalPassword,
       otp,
-      role: 'Officer',
+      accountType: 'Officer',
       isEmailVerified: isAdmin,
       status: 1,
     });
@@ -308,6 +308,7 @@ export class RegisterService {
       isEmailVerified: isAdmin,
       emailVerificationToken,
       status: 1, 
+      accountType: 'Company',
     });
   
     const savedCompany = await newCompany.save();

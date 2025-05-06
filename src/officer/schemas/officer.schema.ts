@@ -59,6 +59,10 @@ export class Officer extends Document {
 
   @Prop({ default: 0 }) // 0 for inactive, 1 for active, or as per your use case
   status: number;
+
+  @Prop({ required: true })
+  accountType: string;
+
 }
 
 export const OfficerSchema = SchemaFactory.createForClass(Officer);

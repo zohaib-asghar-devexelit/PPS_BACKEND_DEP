@@ -1,6 +1,6 @@
 // src/auth/dto/update-officer.dto.ts
 
-import { IsString, IsEmail, IsOptional, IsPhoneNumber, IsDateString,IsBoolean,IsIn } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsPhoneNumber, IsDateString,IsBoolean,IsIn,IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateOfficerDto {
@@ -59,10 +59,15 @@ export class UpdateOfficerDto {
   @IsString()
   socialSecurityNumber?: string;
 
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  document?: string;
+  @ApiProperty({
+    description: 'Array of document URLs or identifiers',
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  documents?: string[];
 
   @ApiProperty({
     example: 'Mon to Fri, 8 AM to 6 PM',

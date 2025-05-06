@@ -255,6 +255,9 @@ export class RegisterService {
     if (!emailRegex.test(emailAddress)) {
       throw new BadRequestException('Invalid email address format');
     }
+    if (!emailRegex.test(contactEmail)) {
+      throw new BadRequestException('Invalid email address format of contactEmail');
+    }
     if (!isAdmin) {
       if (!companyName) requiredFields.push('companyName');
       if (!emailAddress) requiredFields.push('emailAddress');

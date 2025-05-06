@@ -1,5 +1,5 @@
 // src/auth/dto/update-company.dto.ts
-import { IsString, IsEmail, IsOptional, IsPhoneNumber,IsBoolean,IsIn } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsPhoneNumber,IsBoolean,IsIn, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateCompanyDto {
@@ -83,10 +83,15 @@ export class UpdateCompanyDto {
   @IsString()
   role?: string;
 
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  document?: string;  // Optional file/document upload
+  @ApiProperty({
+    description: 'Array of document URLs or identifiers',
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  documents?: string[];
 
   @ApiProperty({ required: false })
   @IsOptional()

@@ -15,8 +15,8 @@ async function bootstrap() {
     app.enableCors();
     // Swagger setup
     const config = new DocumentBuilder()
-    .setTitle('TH-BE Project')
-    .setDescription('TH-BE API Documentation')
+    .setTitle('PPS Project')
+    .setDescription('PPS API Documentation')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

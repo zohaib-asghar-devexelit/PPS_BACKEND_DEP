@@ -1,16 +1,19 @@
 import {
     Controller,
     Post,
-    UploadedFile,
+    UploadedFiles,
     UseInterceptors,
     BadRequestException,
   } from '@nestjs/common';
-  import { FileInterceptor } from '@nestjs/platform-express';
+  import {
+    FilesInterceptor,
+  } from '@nestjs/platform-express';
   import { AwsS3Service } from './aws-s3.service';
-  import { ApiOperation, ApiConsumes, ApiBody,ApiProperty } from '@nestjs/swagger';
-  import { IsString, IsOptional } from 'class-validator';
+  import { ApiOperation, ApiConsumes, ApiBody, ApiProperty } from '@nestjs/swagger';
+  import { diskStorage } from 'multer';
+  import { IsOptional, IsString } from 'class-validator';
+  import { memoryStorage } from 'multer';
   
-  // Define a custom interface for the file
   interface MulterFile {
     fieldname: string;
     originalname: string;
@@ -24,37 +27,62 @@ import {
   }
   
   class FileUploadDto {
-    @IsString()
-    @IsOptional()
-    @ApiProperty()
-    file?: string; // You can add extra fields for more details, if required
+    @ApiProperty({ type: 'string', format: 'binary' })
+    file: any;
   }
-
+  
   @Controller('upload')
   export class AwsS3Controller {
     constructor(private readonly awsS3Service: AwsS3Service) {}
   
     @Post('uploadFile')
-    @ApiOperation({ summary: 'Upload a file to AWS S3' })
-    @ApiConsumes('multipart/form-data') // Describes that this endpoint expects form-data
+    @ApiOperation({ summary: 'Upload up to two files (JPG, JPEG, PNG, PDF). Max file size: 5MB' })
+    @ApiConsumes('multipart/form-data')
     @ApiBody({
-      description: 'The file to upload. Only JPG, PNG, JPEG, and PDF files are allowed.',
-      type: FileUploadDto,
+      schema: {
+        type: 'object',
+        properties: {
+          file: {
+            type: 'array',
+            items: {
+              type: 'string',
+              format: 'binary',
+            },
+          },
+        },
+      },
     })
-    @UseInterceptors(FileInterceptor('file'))
-    async uploadFile(@UploadedFile() file: MulterFile) {
-      // Check if file exists
-      if (!file) {
-        throw new BadRequestException('File is required');
+    @UseInterceptors(
+      FilesInterceptor('file', 2, {
+        storage: memoryStorage(),
+        limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+      }),
+    )
+    async uploadFile(@UploadedFiles() files: MulterFile[]) {
+      if (!files || files.length === 0) {
+        throw new BadRequestException('At least one file is required');
       }
-      
-      // Validate file type
+  
+      if (files.length > 2) {
+        throw new BadRequestException('Maximum two files are allowed');
+      }
+  
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
-      if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException('Only JPG, JPEG, PNG and PDF files are allowed');
+  
+      for (const file of files) {
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+          throw new BadRequestException('Only JPG, JPEG, PNG and PDF files are allowed');
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          throw new BadRequestException('Each file must be 5MB or smaller');
+        }
       }
-      
-      const url = await this.awsS3Service.uploadFile(file);
-      return { url };
+  
+      const uploadedUrls = await Promise.all(
+        files.map(file => this.awsS3Service.uploadFile(file)),
+      );
+  
+      return { urls: uploadedUrls };
     }
   }
+  

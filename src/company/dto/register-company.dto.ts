@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsBoolean,IsIn } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsBoolean,IsIn,IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterCompanyDto {
@@ -82,9 +82,15 @@ export class RegisterCompanyDto {
   @IsOptional()
   role: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Array of document URLs or identifiers',
+    type: [String],
+    required: false,
+  })
   @IsOptional()
-  document?: string;
+  @IsArray()
+  @IsString({ each: true })
+  documents?: string[];
 
   // ✅ New properties
   @ApiProperty({ required: false })

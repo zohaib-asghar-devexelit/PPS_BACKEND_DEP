@@ -1,6 +1,6 @@
 // src/auth/dto/register-officer.dto.ts
 
-import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsDateString, IsBoolean,IsIn } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsDateString, IsBoolean,IsIn,IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterOfficerDto {
@@ -64,10 +64,15 @@ export class RegisterOfficerDto {
   @IsNotEmpty()
   socialSecurityNumber: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Array of document URLs or identifiers',
+    type: [String],
+    required: false,
+  })
   @IsOptional()
-  @IsString()
-  document?: string;
+  @IsArray()
+  @IsString({ each: true })
+  documents?: string[];
 
   @ApiProperty({
     example: 'Mon to Fri, 8 AM to 6 PM',

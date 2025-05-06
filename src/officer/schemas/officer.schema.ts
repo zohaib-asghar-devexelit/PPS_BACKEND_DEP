@@ -41,8 +41,8 @@ export class Officer extends Document {
   @Prop({ required: false })
   socialSecurityNumber: string;
 
-  @Prop({ required: false })
-  document?: string;
+  @Prop({ type: [String], required: false })
+  documents?: string[];
 
   @Prop({ required: false })
   availability: string; // e.g. "Mon to Fri, 8 AM to 6 PM"

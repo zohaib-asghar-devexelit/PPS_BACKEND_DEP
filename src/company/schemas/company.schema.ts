@@ -52,8 +52,8 @@ export class Company extends Document {
   @Prop({ required: false })
   role: string;
 
-  @Prop({ required: false })
-  document?: string;
+  @Prop({ type: [String], required: false })
+  documents?: string[];
 
   // ✅ New fields
   @Prop({ required: false })

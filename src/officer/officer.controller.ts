@@ -1,7 +1,7 @@
 import { Controller, Body, Put, Param, Delete, Get, Query,Patch } from '@nestjs/common';
 import { OfficerService } from './officer.service';
 import { UpdateOfficerDto } from '../officer/dto/update-officer.dto'; // Assuming you have an update DTO
-import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiQuery } from '@nestjs/swagger';
 import { ApiResponse } from '../auth/dto/api-response.dto';
 
 
@@ -14,6 +14,9 @@ export class OfficerController {
   
 @Get('getAllOfficer')
 @ApiOperation({ summary: 'Get all officers with pagination and search' })
+@ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number for pagination (default: 1)' })
+@ApiQuery({ name: 'limit', required: false, type: Number, description: 'Limit the number of companies per page (default: 10)' })
+@ApiQuery({ name: 'search', required: false, type: String, description: 'Search term for filtering companies by name' })
 @SwaggerApiResponse({
   status: 200,
   description: 'List of officers retrieved successfully',

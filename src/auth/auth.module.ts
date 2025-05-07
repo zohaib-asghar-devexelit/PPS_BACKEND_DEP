@@ -11,6 +11,8 @@ import { RegisterController } from './controllers/auth.controller';
 import { CompanyModule } from '../company/company.module';
 import { OfficerModule } from '../officer/officer.module';
 import { ChangePasswordService } from './services/change-password.service';
+import { Account, AccountSchema } from './schemas/account.schema';
+import { MongooseModule } from '@nestjs/mongoose';
 
 
 @Module({
@@ -22,6 +24,7 @@ import { ChangePasswordService } from './services/change-password.service';
     }),
     CompanyModule,
     OfficerModule,
+    MongooseModule.forFeature([{ name: Account.name, schema: AccountSchema }]),
   ],
   providers: [JwtStrategy, MailService, ForgotPasswordService, LoginService, RegisterService,ChangePasswordService],
   controllers: [ForgotPasswordController, RegisterController],

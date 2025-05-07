@@ -65,10 +65,10 @@ export class CreateJobDto {
   @IsNumber()
   hourlyRate?: number;
 
-@ApiProperty({ enum: JobStatus, example: JobStatus.PENDING_PRICING })
-@IsOptional()
-@IsEnum(JobStatus)
-status?: JobStatus;
+// @ApiProperty({ enum: JobStatus, example: JobStatus.PENDING_PRICING })
+// @IsOptional()
+// @IsEnum(JobStatus)
+// status?: JobStatus;
 
 @ApiProperty({ example: 'true' })
 @IsOptional()

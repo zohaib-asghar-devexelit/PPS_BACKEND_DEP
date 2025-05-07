@@ -93,18 +93,18 @@ export class UpdateCompanyDto {
   @IsString({ each: true })
   documents?: string[];
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  otp?: string;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsString()
+  // otp?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsBoolean()
-  isEmailVerified?: boolean;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsBoolean()
+  // isEmailVerified?: boolean;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsIn([0, 1])
-  status: number;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsIn([0, 1])
+  // status: number;
 }

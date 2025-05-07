@@ -53,7 +53,7 @@ import {
       },
     })
     @UseInterceptors(
-      FilesInterceptor('file', 2, {
+      FilesInterceptor('file', 5, {
         storage: memoryStorage(),
         limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
       }),
@@ -63,7 +63,7 @@ import {
         throw new BadRequestException('At least one file is required');
       }
   
-      if (files.length > 2) {
+      if (files.length > 5) {
         throw new BadRequestException('Maximum two files are allowed');
       }
   

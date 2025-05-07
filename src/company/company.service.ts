@@ -34,7 +34,10 @@ export class CompanyService {
   
     // Add search filter for company name (adjust this field as necessary)
     if (search) {
-      query['name'] = { $regex: search, $options: 'i' }; // case-insensitive search
+      query['$or'] = [
+        { companyName: { $regex: search, $options: 'i' } },
+        { emailAddress: { $regex: search, $options: 'i' } }
+      ];
     }
   
     // Add other filters to the query if provided

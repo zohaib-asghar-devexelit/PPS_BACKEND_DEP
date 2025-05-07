@@ -56,8 +56,8 @@ export class UpdateJobDto extends PartialType(CreateJobDto) {
   @IsNumber()
   hourlyRate?: number;
 
-@ApiPropertyOptional({ enum: JobStatus, example: JobStatus.PENDING_PRICING })
-@IsOptional()
-@IsEnum(JobStatus)
-status?: JobStatus;
+// @ApiPropertyOptional({ enum: JobStatus, example: JobStatus.PENDING_PRICING })
+// @IsOptional()
+// @IsEnum(JobStatus)
+// status?: JobStatus;
 }

@@ -92,34 +92,34 @@ export class RegisterCompanyDto {
   @IsString({ each: true })
   documents?: string[];
 
-  // ✅ New properties
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  otp?: string;
+  // // ✅ New properties
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsString()
+  // otp?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsBoolean()
-  isEmailVerified?: boolean;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsBoolean()
+  // isEmailVerified?: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
   isAdmin: boolean;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  emailVerificationToken?: string;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsString()
+  // emailVerificationToken?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  resetPasswordToken?: string;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsString()
+  // resetPasswordToken?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsIn([0, 1])
-  status: number;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsIn([0, 1])
+  // status: number;
 }

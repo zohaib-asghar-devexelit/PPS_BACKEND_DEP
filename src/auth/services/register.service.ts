@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Officer } from '../../officer/schemas/officer.schema';
 import { Company } from '../../company/schemas/company.schema';
+import { Account } from '../schemas/account.schema';
 import { RegisterOfficerDto } from '../../officer/dto/register-officer.dto';
 import { RegisterCompanyDto } from '../../company/dto/register-company.dto';
 import { generateRandomPassword  } from '../../common/utils/password.util'; // Assuming you have utility functions for OTP generation
@@ -16,6 +17,8 @@ export class RegisterService {
   constructor(
     @InjectModel('Officer') private readonly officerModel: Model<Officer>,
     @InjectModel('Company') private readonly companyModel: Model<Company>,
+    @InjectModel('Account') private readonly accountModel: Model<Account>,
+    
     private readonly jwtService: JwtService,
     private readonly mailerService: MailService,
   ) {}
@@ -173,6 +176,16 @@ export class RegisterService {
     // Save officer
     const savedOfficer = await newOfficer.save();
   
+    await this.accountModel.create({
+      emailAddress: registerOfficerDto.emailAddress,
+      password: hashedPassword,
+      confirmPassword: finalPassword,
+      accountType: 'officer',
+      refId: savedOfficer._id,
+      isEmailVerified: isAdmin,
+      status: 1,
+    });
+
     // Send email/OTP
     if (isAdmin) {
       await this.mailerService.sendAdminCredentialsEmail(normalizedEmail, finalPassword);
@@ -192,63 +205,100 @@ export class RegisterService {
   
 
   // Company Registration
+
   // async registerCompany(createCompanyDto: RegisterCompanyDto): Promise<{ token: string; company: Company }> {
-  //   const { isAdmin, emailAddress, companyName, password, confirmPassword } = createCompanyDto;
-
-  //   const existingCompany = await this.companyModel.findOne({
-  //     $or: [{ emailAddress }, { companyName }],
-  //   });
-
-  //   if (existingCompany) {
-  //     throw new Error('Company email or name already exists');
+  //   const { isAdmin, emailAddress, companyName, password, confirmPassword, phoneNumber, companyAddress, street, city, state, zipCode, registrationNumber, taxId, industry, fullName, contactEmail, role } = createCompanyDto;
+  //   const requiredFields: string[] = [];
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (typeof isAdmin === 'undefined' || isAdmin === null) {
+  //     throw new BadRequestException('isAdmin field is required');
   //   }
-
+  //   if (!emailRegex.test(emailAddress)) {
+  //     throw new BadRequestException('Invalid email address format');
+  //   }
+  //   if (!emailRegex.test(contactEmail)) {
+  //     throw new BadRequestException('Invalid email address format of contactEmail');
+  //   }
+  //   if (!isAdmin) {
+  //     if (!companyName) requiredFields.push('companyName');
+  //     if (!emailAddress) requiredFields.push('emailAddress');
+  //     if (!phoneNumber) requiredFields.push('phoneNumber');
+  //     if (!password) requiredFields.push('password');
+  //     if (!confirmPassword) requiredFields.push('confirmPassword');
+  //     if (!companyAddress) requiredFields.push('companyAddress');
+  //     if (!street) requiredFields.push('street');
+  //     if (!city) requiredFields.push('city');
+  //     if (!state) requiredFields.push('state');
+  //     if (!zipCode) requiredFields.push('zipCode');
+  //     if (!registrationNumber) requiredFields.push('registrationNumber');
+  //     // if (!taxId) requiredFields.push('taxId');
+  //     if (!industry) requiredFields.push('industry');
+  //     if (!fullName) requiredFields.push('fullName');
+  //     if (!contactEmail) requiredFields.push('contactEmail');
+  //     if (!role) requiredFields.push('role');
+  
+  //     if (requiredFields.length > 0) {
+  //       throw new BadRequestException(`Missing required fields: ${requiredFields.join(', ')}`);
+  //     }
+  //     if (password !== confirmPassword) {
+  //       throw new BadRequestException('Passwords do not match');
+  //     }
+  //   }
+  //   const [existingOfficer, existingCompany] = await Promise.all([
+  //     this.officerModel.findOne({ emailAddress }),
+  //     this.companyModel.findOne({ emailAddress }),
+  //   ]);
+  //   if (existingOfficer || existingCompany) {
+  //     throw new ConflictException('An account with this email address already exists');
+  //   }
+  //   const companyNameExists = await this.companyModel.findOne({ companyName });
+  //   if (companyNameExists) {
+  //     throw new ConflictException('Company name already exists');
+  //   }
   //   const finalPassword = isAdmin ? generateRandomPassword(8) : password;
-  //   if (!isAdmin && (!password || !confirmPassword || password !== confirmPassword)) {
-  //     throw new Error('Passwords do not match');
-  //   }
-
   //   const hashedPassword = await bcrypt.hash(finalPassword, 10);
   //   const otp = generateOTP();
-
-  //   const emailVerificationToken = this.jwtService.sign(
-  //     { sub: emailAddress },
-  //     {
-  //       secret: process.env.JWT_SECRET,
-  //       expiresIn: '15m',
-  //     }
-  //   );
-
+  //   const emailVerificationToken = isAdmin
+  //     ? null
+  //     : this.jwtService.sign({ sub: emailAddress }, { secret: process.env.JWT_SECRET, expiresIn: '15m' });
+  
   //   const newCompany = new this.companyModel({
   //     ...createCompanyDto,
   //     password: hashedPassword,
   //     otp,
   //     isEmailVerified: isAdmin,
-  //     emailVerificationToken: isAdmin ? null : emailVerificationToken,
-  //     status: 1,
-  //   });
-
+  //     emailVerificationToken,
+  //     status: 1, 
+  //     accountType: 'company',
+  //   });  
   //   const savedCompany = await newCompany.save();
 
+  //   await this.accountModel.create({
+  //     emailAddress: companyDto.emailAddress,
+  //     password: hash(companyDto.password),
+  //     confirmPassword: companyDto.password,
+  //     accountType: 'company',
+  //     refId: savedCompany._id,
+  //     isEmailVerified: isAdmin,
+  //     status: 1,
+  //   });
   //   if (isAdmin) {
   //     await this.mailerService.sendAdminCredentialsEmail(emailAddress, finalPassword);
   //   } else {
   //     await this.sendOtpToUser(emailAddress, otp);
   //   }
-
   //   const token = this.jwtService.sign({
   //     sub: savedCompany._id,
   //     email: savedCompany.emailAddress,
   //     role: 'company',
   //   });
-
   //   return { token, company: savedCompany };
   // }
-
   async registerCompany(createCompanyDto: RegisterCompanyDto): Promise<{ token: string; company: Company }> {
     const { isAdmin, emailAddress, companyName, password, confirmPassword, phoneNumber, companyAddress, street, city, state, zipCode, registrationNumber, taxId, industry, fullName, contactEmail, role } = createCompanyDto;
     const requiredFields: string[] = [];
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
     if (typeof isAdmin === 'undefined' || isAdmin === null) {
       throw new BadRequestException('isAdmin field is required');
     }
@@ -270,7 +320,6 @@ export class RegisterService {
       if (!state) requiredFields.push('state');
       if (!zipCode) requiredFields.push('zipCode');
       if (!registrationNumber) requiredFields.push('registrationNumber');
-      // if (!taxId) requiredFields.push('taxId');
       if (!industry) requiredFields.push('industry');
       if (!fullName) requiredFields.push('fullName');
       if (!contactEmail) requiredFields.push('contactEmail');
@@ -283,6 +332,7 @@ export class RegisterService {
         throw new BadRequestException('Passwords do not match');
       }
     }
+  
     const [existingOfficer, existingCompany] = await Promise.all([
       this.officerModel.findOne({ emailAddress }),
       this.companyModel.findOne({ emailAddress }),
@@ -290,10 +340,12 @@ export class RegisterService {
     if (existingOfficer || existingCompany) {
       throw new ConflictException('An account with this email address already exists');
     }
+  
     const companyNameExists = await this.companyModel.findOne({ companyName });
     if (companyNameExists) {
       throw new ConflictException('Company name already exists');
     }
+  
     const finalPassword = isAdmin ? generateRandomPassword(8) : password;
     const hashedPassword = await bcrypt.hash(finalPassword, 10);
     const otp = generateOTP();
@@ -308,22 +360,36 @@ export class RegisterService {
       isEmailVerified: isAdmin,
       emailVerificationToken,
       status: 1, 
-      accountType: 'Company',
+      accountType: 'company',
+      confirmPassword: finalPassword,
+    });
+    const savedCompany = await newCompany.save();
+  
+    await this.accountModel.create({
+      emailAddress: createCompanyDto.emailAddress,
+      password: hashedPassword,
+      confirmPassword: finalPassword,
+      accountType: 'company',
+      refId: savedCompany._id,
+      isEmailVerified: isAdmin,
+      status: 1,
     });
   
-    const savedCompany = await newCompany.save();
     if (isAdmin) {
       await this.mailerService.sendAdminCredentialsEmail(emailAddress, finalPassword);
     } else {
       await this.sendOtpToUser(emailAddress, otp);
     }
+  
     const token = this.jwtService.sign({
       sub: savedCompany._id,
       email: savedCompany.emailAddress,
       role: 'company',
     });
+  
     return { token, company: savedCompany };
   }
+  
   
   async verifyOtp(payload: { id: string; otp: string; email?: string }): Promise<{ message: string }> {
     const { id, otp, email } = payload;

@@ -12,6 +12,6 @@ export class LoginOfficerDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
-  Password: string;
+  password: string;
 
 }

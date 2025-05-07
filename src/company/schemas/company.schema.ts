@@ -1,6 +1,19 @@
-// src/auth/schemas/company.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+
+@Schema()
+export class ContactPerson {
+  @Prop({ required: true })
+  fullName: string;
+
+  @Prop({ required: true })
+  contactEmail: string;
+
+  @Prop({ required: true })
+  role: string;
+}
+
+const ContactPersonSchema = SchemaFactory.createForClass(ContactPerson);
 
 @Schema({ timestamps: true })
 export class Company extends Document {
@@ -34,28 +47,18 @@ export class Company extends Document {
   @Prop({ required: true })
   zipCode: string;
 
-  @Prop({ required: false })
-  registrationNumber: string;
+  // @Prop({ required: false })
+  // registrationNumber: string;
 
   @Prop({ required: false })
   taxId: string;
 
-  @Prop({ required: false })
-  industry: string;
-
-  @Prop({ required: false })
-  fullName: string;
-
-  @Prop({ required: false })
-  contactEmail: string;
-
-  @Prop({ required: false })
-  role: string;
+  // @Prop({ required: false })
+  // industry: string;
 
   @Prop({ type: [String], required: false })
   documents?: string[];
 
-  // ✅ New fields
   @Prop({ required: false })
   otp?: string;
 
@@ -68,11 +71,15 @@ export class Company extends Document {
   @Prop({ required: false })
   resetPasswordToken?: string;
 
-  @Prop({ default: 0 }) // 0 for inactive, 1 for active, or as per your use case
+  @Prop({ default: 0 })
   status: number;
-  
+
   @Prop({ required: true })
   accountType: string;
+
+  // ✅ New field for multiple contact persons
+  @Prop({ type: [ContactPersonSchema], required: false })
+  contactPersons?: ContactPerson[];
 }
 
 export const CompanySchema = SchemaFactory.createForClass(Company);

@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Officer } from '../../officer/schemas/officer.schema';
 import { Company } from '../../company/schemas/company.schema';  // The DTO created above
+import { Account } from '../schemas/account.schema';
 
 @Injectable()
 export class ChangePasswordService {
@@ -17,6 +18,7 @@ export class ChangePasswordService {
     private readonly companyService: CompanyService,
     @InjectModel('Officer') private readonly officerModel: Model<Officer>,
     @InjectModel('Company') private readonly companyModel: Model<Company>,
+    @InjectModel('Account') private readonly accountModel: Model<Account>,
   ) {}
 
   // async changePassword(changePasswordDto: ChangePasswordDto): Promise<string> {
@@ -74,7 +76,7 @@ export class ChangePasswordService {
   
     let user: any = null;
     let role: 'officer' | 'company' | null = null;
-  
+    let account: any = null;
     // Step 1: Validate password match
     if (newPassword !== confirmPassword) {
       throw new BadRequestException('Passwords do not match');
@@ -85,25 +87,18 @@ export class ChangePasswordService {
       const payload = this.jwtService.verify(token, {
         secret: process.env.JWT_SECRET,
       });
-  
       const userId = payload.sub;
       role = payload.role;
-  
-      if (!userId || !role) {
+      console.log("==>payload", userId);
+      if (!userId) {
         throw new BadRequestException('Invalid or expired token');
       }
   
-      if (role === 'officer') {
-        user = await this.officerService.getOfficerById(userId);
-      } else if (role === 'company') {
-        user = await this.companyService.getCompanyById(userId);
-      }
-  
+      user = await this.accountModel.findOne({ _id: userId });
+      console.log("==>user", user);
       if (!user) {
         throw new NotFoundException(`${role} not found`);
       }
-  
-      // Clear token
       user.resetPasswordToken = null;
     } 
     // ==== CASE 2: Change password from profile (email + oldPassword required) ====
@@ -115,13 +110,14 @@ export class ChangePasswordService {
       const normalizedEmail = email.trim().toLowerCase();
   
       // Search for user in both models
-      user = await this.officerModel.findOne({ emailAddress: normalizedEmail });
-      role = 'officer';
+      // user = await this.officerModel.findOne({ emailAddress: normalizedEmail });
+      // role = 'officer';
   
-      if (!user) {
-        user = await this.companyModel.findOne({ emailAddress: normalizedEmail });
-        role = 'company';
-      }
+      // if (!user) {
+      //   user = await this.companyModel.findOne({ emailAddress: normalizedEmail });
+      //   role = 'company';
+      // }
+      user = await this.accountModel.findOne({ emailAddress: normalizedEmail });
   
       if (!user) {
         throw new NotFoundException('User not found with this email');
@@ -132,13 +128,25 @@ export class ChangePasswordService {
         throw new BadRequestException('Old password is incorrect');
       }
     }
-  
+    console.log("==>user", user);
     // Step 2: Update password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     user.confirmPassword = newPassword; // Store plain confirmPassword only if needed
     await user.save();
+    if(user.accountType=="company"){
+      account = await this.companyModel.findOne({ emailAddress: user.emailAddress });  
+    }else{
+      account = await this.officerModel.findOne({ emailAddress: user.emailAddress });
+    }
+    // account = await this.accountModel.findOne({ emailAddress: user.emailAddress });
   
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+    account.password = hashedPassword;
+    account.confirmPassword = newPassword;
+    await account.save();
     return 'Password successfully changed';
   }
   

@@ -1,87 +1,94 @@
-// src/auth/dto/update-company.dto.ts
-import { IsString, IsEmail, IsOptional, IsPhoneNumber,IsBoolean,IsIn, IsArray } from 'class-validator';
+// src/auth/dto/register-company.dto.ts
+import {
+  IsString,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsBoolean,
+  IsArray,
+  ValidateNested
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { ContactPersonDto } from './contact-person.dto'; // Adjust path as needed
 
-export class UpdateCompanyDto {
+export class RegisterCompanyDto {
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  companyName?: string;
+  @IsNotEmpty()
+  companyName: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsEmail({}, { message: 'Invalid email format' })
-  emailAddress?: string;
+  @IsNotEmpty()
+  emailAddress: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  password?: string;
+  @IsOptional()
+  password: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  confirmPassword?: string;
+  @IsOptional()
+  confirmPassword: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsPhoneNumber()
-  phoneNumber?: string;
+  @IsNotEmpty()
+  phoneNumber: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  companyAddress?: string;
+  @IsNotEmpty()
+  companyAddress: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  street?: string;
+  @IsNotEmpty()
+  street: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  city?: string;
+  @IsNotEmpty()
+  city: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  state?: string;
+  @IsNotEmpty()
+  state: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  zipCode?: string;
+  @IsNotEmpty()
+  zipCode: string;
+
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // registrationNumber: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  registrationNumber?: string;
+  @IsOptional()
+  taxId: string;
 
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  taxId?: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // industry: string;
 
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  industry?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  fullName?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsEmail()
-  contactEmail?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  role?: string;
+  @ApiProperty({
+    description: 'Array of contact persons',
+    type: [ContactPersonDto],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ContactPersonDto)
+  contactPersons?: ContactPersonDto[];
 
   @ApiProperty({
     description: 'Array of document URLs or identifiers',
@@ -93,18 +100,8 @@ export class UpdateCompanyDto {
   @IsString({ each: true })
   documents?: string[];
 
-  // @ApiProperty({ required: false })
-  // @IsOptional()
-  // @IsString()
-  // otp?: string;
-
-  // @ApiProperty({ required: false })
-  // @IsOptional()
-  // @IsBoolean()
-  // isEmailVerified?: boolean;
-
-  // @ApiProperty({ required: false })
-  // @IsOptional()
-  // @IsIn([0, 1])
-  // status: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isAdmin: boolean;
 }

@@ -24,49 +24,6 @@ export class RegisterService {
   ) {}
 
   // Officer Registration
-  // async registerOfficer(registerOfficerDto: RegisterOfficerDto): Promise<{ token: string; officer: Officer }> {
-  //   const { isAdmin, emailAddress, password, confirmPassword } = registerOfficerDto;
-
-  //   const normalizedEmail = emailAddress.trim().toLowerCase();
-  //   if (!isAdmin && password !== confirmPassword) {
-  //     throw new ConflictException('Passwords do not match');
-  //   }
-
-  //   const existingOfficer = await this.officerModel.findOne({ normalizedEmail });
-  //   if (existingOfficer) {
-  //     throw new ConflictException('Officer with this email already exists');
-  //   }
-
-  //   const finalPassword = isAdmin ? generateRandomPassword(8) : password;
-  //   const hashedPassword = await bcrypt.hash(finalPassword, 10);
-  //   const otp = generateOTP();
-
-  //   const newOfficer = new this.officerModel({
-  //     ...registerOfficerDto,
-  //     password: hashedPassword,
-  //     confirmPassword: finalPassword,
-  //     otp,
-  //     role: 'Officer',
-  //     isEmailVerified: isAdmin,
-  //     status: 1,
-  //   });
-
-  //   const savedOfficer = await newOfficer.save();
-
-  //   if (isAdmin) {
-  //     await this.mailerService.sendAdminCredentialsEmail(emailAddress, finalPassword);
-  //   } else {
-  //     await this.sendOtpToUser(emailAddress, otp);
-  //   }
-
-  //   const token = this.jwtService.sign({
-  //     sub: savedOfficer._id,
-  //     email: savedOfficer.emailAddress,
-  //     role: 'officer',
-  //   });
-
-  //   return { token, officer: savedOfficer };
-  // }
 
   async registerOfficer(registerOfficerDto: RegisterOfficerDto): Promise<{ token: string; officer: Officer }> {
     const {
@@ -205,109 +162,51 @@ export class RegisterService {
   
 
   // Company Registration
-
-  // async registerCompany(createCompanyDto: RegisterCompanyDto): Promise<{ token: string; company: Company }> {
-  //   const { isAdmin, emailAddress, companyName, password, confirmPassword, phoneNumber, companyAddress, street, city, state, zipCode, registrationNumber, taxId, industry, fullName, contactEmail, role } = createCompanyDto;
-  //   const requiredFields: string[] = [];
-  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   if (typeof isAdmin === 'undefined' || isAdmin === null) {
-  //     throw new BadRequestException('isAdmin field is required');
-  //   }
-  //   if (!emailRegex.test(emailAddress)) {
-  //     throw new BadRequestException('Invalid email address format');
-  //   }
-  //   if (!emailRegex.test(contactEmail)) {
-  //     throw new BadRequestException('Invalid email address format of contactEmail');
-  //   }
-  //   if (!isAdmin) {
-  //     if (!companyName) requiredFields.push('companyName');
-  //     if (!emailAddress) requiredFields.push('emailAddress');
-  //     if (!phoneNumber) requiredFields.push('phoneNumber');
-  //     if (!password) requiredFields.push('password');
-  //     if (!confirmPassword) requiredFields.push('confirmPassword');
-  //     if (!companyAddress) requiredFields.push('companyAddress');
-  //     if (!street) requiredFields.push('street');
-  //     if (!city) requiredFields.push('city');
-  //     if (!state) requiredFields.push('state');
-  //     if (!zipCode) requiredFields.push('zipCode');
-  //     if (!registrationNumber) requiredFields.push('registrationNumber');
-  //     // if (!taxId) requiredFields.push('taxId');
-  //     if (!industry) requiredFields.push('industry');
-  //     if (!fullName) requiredFields.push('fullName');
-  //     if (!contactEmail) requiredFields.push('contactEmail');
-  //     if (!role) requiredFields.push('role');
   
-  //     if (requiredFields.length > 0) {
-  //       throw new BadRequestException(`Missing required fields: ${requiredFields.join(', ')}`);
-  //     }
-  //     if (password !== confirmPassword) {
-  //       throw new BadRequestException('Passwords do not match');
-  //     }
-  //   }
-  //   const [existingOfficer, existingCompany] = await Promise.all([
-  //     this.officerModel.findOne({ emailAddress }),
-  //     this.companyModel.findOne({ emailAddress }),
-  //   ]);
-  //   if (existingOfficer || existingCompany) {
-  //     throw new ConflictException('An account with this email address already exists');
-  //   }
-  //   const companyNameExists = await this.companyModel.findOne({ companyName });
-  //   if (companyNameExists) {
-  //     throw new ConflictException('Company name already exists');
-  //   }
-  //   const finalPassword = isAdmin ? generateRandomPassword(8) : password;
-  //   const hashedPassword = await bcrypt.hash(finalPassword, 10);
-  //   const otp = generateOTP();
-  //   const emailVerificationToken = isAdmin
-  //     ? null
-  //     : this.jwtService.sign({ sub: emailAddress }, { secret: process.env.JWT_SECRET, expiresIn: '15m' });
+  async registerCompany(createCompanyDto: RegisterCompanyDto): Promise<{ token: string; company: Company; accountId: string }> {
+    const {
+      isAdmin,
+      emailAddress,
+      companyName,
+      password,
+      confirmPassword,
+      phoneNumber,
+      companyAddress,
+      street,
+      city,
+      state,
+      zipCode,
+      taxId,
+      contactPersons,
+    } = createCompanyDto;
   
-  //   const newCompany = new this.companyModel({
-  //     ...createCompanyDto,
-  //     password: hashedPassword,
-  //     otp,
-  //     isEmailVerified: isAdmin,
-  //     emailVerificationToken,
-  //     status: 1, 
-  //     accountType: 'company',
-  //   });  
-  //   const savedCompany = await newCompany.save();
-
-  //   await this.accountModel.create({
-  //     emailAddress: companyDto.emailAddress,
-  //     password: hash(companyDto.password),
-  //     confirmPassword: companyDto.password,
-  //     accountType: 'company',
-  //     refId: savedCompany._id,
-  //     isEmailVerified: isAdmin,
-  //     status: 1,
-  //   });
-  //   if (isAdmin) {
-  //     await this.mailerService.sendAdminCredentialsEmail(emailAddress, finalPassword);
-  //   } else {
-  //     await this.sendOtpToUser(emailAddress, otp);
-  //   }
-  //   const token = this.jwtService.sign({
-  //     sub: savedCompany._id,
-  //     email: savedCompany.emailAddress,
-  //     role: 'company',
-  //   });
-  //   return { token, company: savedCompany };
-  // }
-  async registerCompany(createCompanyDto: RegisterCompanyDto): Promise<{ token: string; company: Company }> {
-    const { isAdmin, emailAddress, companyName, password, confirmPassword, phoneNumber, companyAddress, street, city, state, zipCode, registrationNumber, taxId, industry, fullName, contactEmail, role } = createCompanyDto;
     const requiredFields: string[] = [];
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   
     if (typeof isAdmin === 'undefined' || isAdmin === null) {
       throw new BadRequestException('isAdmin field is required');
     }
+  
     if (!emailRegex.test(emailAddress)) {
       throw new BadRequestException('Invalid email address format');
     }
-    if (!emailRegex.test(contactEmail)) {
-      throw new BadRequestException('Invalid email address format of contactEmail');
+  
+    // Validate contactPersons (if not admin)
+    if (!isAdmin) {
+      if (!Array.isArray(contactPersons) || contactPersons.length === 0) {
+        throw new BadRequestException('At least one contact person is required');
+      }
+  
+      contactPersons.forEach((person, index) => {
+        if (!person.fullName) requiredFields.push(`contactPersons[${index}].fullName`);
+        if (!person.contactEmail) requiredFields.push(`contactPersons[${index}].contactEmail`);
+        if (!emailRegex.test(person.contactEmail)) {
+          throw new BadRequestException(`Invalid email address format for contactPersons[${index}].contactEmail`);
+        }
+        if (!person.role) requiredFields.push(`contactPersons[${index}].role`);
+      });
     }
+  
     if (!isAdmin) {
       if (!companyName) requiredFields.push('companyName');
       if (!emailAddress) requiredFields.push('emailAddress');
@@ -319,15 +218,13 @@ export class RegisterService {
       if (!city) requiredFields.push('city');
       if (!state) requiredFields.push('state');
       if (!zipCode) requiredFields.push('zipCode');
-      if (!registrationNumber) requiredFields.push('registrationNumber');
-      if (!industry) requiredFields.push('industry');
-      if (!fullName) requiredFields.push('fullName');
-      if (!contactEmail) requiredFields.push('contactEmail');
-      if (!role) requiredFields.push('role');
+      // if (!registrationNumber) requiredFields.push('registrationNumber');
+      // if (!industry) requiredFields.push('industry');
   
       if (requiredFields.length > 0) {
         throw new BadRequestException(`Missing required fields: ${requiredFields.join(', ')}`);
       }
+  
       if (password !== confirmPassword) {
         throw new BadRequestException('Passwords do not match');
       }
@@ -355,17 +252,19 @@ export class RegisterService {
   
     const newCompany = new this.companyModel({
       ...createCompanyDto,
+      contactPersons: contactPersons || [], // fallback in case it's undefined
       password: hashedPassword,
       otp,
       isEmailVerified: isAdmin,
       emailVerificationToken,
-      status: 1, 
+      status: 1,
       accountType: 'company',
       confirmPassword: finalPassword,
     });
+  
     const savedCompany = await newCompany.save();
   
-    await this.accountModel.create({
+    const savedAccount = await this.accountModel.create({
       emailAddress: createCompanyDto.emailAddress,
       password: hashedPassword,
       confirmPassword: finalPassword,
@@ -374,7 +273,7 @@ export class RegisterService {
       isEmailVerified: isAdmin,
       status: 1,
     });
-  
+    let accountId = savedAccount ? (savedAccount._id as any).toString() : null;
     if (isAdmin) {
       await this.mailerService.sendAdminCredentialsEmail(emailAddress, finalPassword);
     } else {
@@ -387,36 +286,90 @@ export class RegisterService {
       role: 'company',
     });
   
-    return { token, company: savedCompany };
+    return { token, company: savedCompany,   accountId: accountId, };
   }
   
   
+  // async verifyOtp(payload: { id: string; otp: string; email?: string }): Promise<{ message: string }> {
+  //   const { id, otp, email } = payload;
+  //   let user = await this.companyModel.findById(id);
+  //   let userType = 'company';
+  //   if (!user) {
+  //     user = await this.officerModel.findById(id);
+  //     userType = 'officer';
+  //   }
+  //   if (!user) {
+  //     throw new Error('User not found');
+  //   }
+  //   if (email && user.emailAddress !== email) {
+  //     user.emailAddress = email;
+  //     user.otp = generateOTP();
+  //     await user.save();
+  //     await this.sendOtpToUser(email, user.otp);
+  //     return { message: 'Email updated and OTP sent to new email address' };
+  //   }
+  //   if (user.otp !== otp) {
+  //     throw new Error('Invalid OTP');
+  //   }
+  //   user.isEmailVerified = true;
+  //   user.otp = undefined;
+  //   await user.save();
+  //   return { message: `${userType} email verified successfully` };
+  // }
+
   async verifyOtp(payload: { id: string; otp: string; email?: string }): Promise<{ message: string }> {
     const { id, otp, email } = payload;
+  
+    // Check for the user in the company model first
     let user = await this.companyModel.findById(id);
     let userType = 'company';
+    
     if (!user) {
+      // If not found in company, check officer model
       user = await this.officerModel.findById(id);
       userType = 'officer';
     }
+    
     if (!user) {
       throw new Error('User not found');
     }
+  
+    // If email is provided, update it and send new OTP
     if (email && user.emailAddress !== email) {
       user.emailAddress = email;
       user.otp = generateOTP();
       await user.save();
       await this.sendOtpToUser(email, user.otp);
+  
+      // Update the account model with the new email and OTP
+      await this.accountModel.updateOne(
+        { refId: user._id },
+        { emailAddress: email, otp: user.otp, isEmailVerified: false }
+      );
+  
       return { message: 'Email updated and OTP sent to new email address' };
     }
+  
+    // If OTP does not match, throw error
     if (user.otp !== otp) {
       throw new Error('Invalid OTP');
     }
+  
+    // Mark user email as verified
     user.isEmailVerified = true;
-    user.otp = undefined;
+    user.otp = undefined; // Clear OTP
     await user.save();
+  
+    // Update the account model with isEmailVerified = true
+    await this.accountModel.updateOne(
+      { refId: user._id },
+      { isEmailVerified: true }
+    );
+  
     return { message: `${userType} email verified successfully` };
   }
+  
+
   private async sendOtpToUser(email: string, otp: string): Promise<void> {
     await this.mailerService.sendOTPEmail(email, otp);
   }

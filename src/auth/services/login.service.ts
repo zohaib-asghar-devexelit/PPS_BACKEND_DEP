@@ -78,7 +78,9 @@ export class LoginService {
     if (!account.isEmailVerified) {
       throw new UnauthorizedException('Email not verified');
     }
-  
+    if(account.status==0){
+      throw new UnauthorizedException('Your Account has beed banned');
+    }
     // Fetch user based on account type
     let user: Officer | Company;
   

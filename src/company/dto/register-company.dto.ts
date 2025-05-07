@@ -1,5 +1,17 @@
-import { IsString, IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsBoolean,IsIn,IsArray } from 'class-validator';
+// src/auth/dto/register-company.dto.ts
+import {
+  IsString,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsBoolean,
+  IsArray,
+  ValidateNested
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { ContactPersonDto } from './contact-person.dto'; // Adjust path as needed
 
 export class RegisterCompanyDto {
   @ApiProperty()
@@ -12,7 +24,7 @@ export class RegisterCompanyDto {
   @IsNotEmpty()
   emailAddress: string;
 
-  @ApiProperty()  
+  @ApiProperty()
   @IsString()
   @IsOptional()
   password: string;
@@ -52,35 +64,31 @@ export class RegisterCompanyDto {
   @IsNotEmpty()
   zipCode: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  registrationNumber: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // registrationNumber: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
   taxId: string;
-  
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  industry: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  fullName: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // industry: string;
 
-  @ApiProperty()
-  @IsEmail()
+  @ApiProperty({
+    description: 'Array of contact persons',
+    type: [ContactPersonDto],
+    required: false,
+  })
   @IsOptional()
-  contactEmail: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  role: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ContactPersonDto)
+  contactPersons?: ContactPersonDto[];
 
   @ApiProperty({
     description: 'Array of document URLs or identifiers',
@@ -92,34 +100,8 @@ export class RegisterCompanyDto {
   @IsString({ each: true })
   documents?: string[];
 
-  // // ✅ New properties
-  // @ApiProperty({ required: false })
-  // @IsOptional()
-  // @IsString()
-  // otp?: string;
-
-  // @ApiProperty({ required: false })
-  // @IsOptional()
-  // @IsBoolean()
-  // isEmailVerified?: boolean;
-
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
   isAdmin: boolean;
-
-  // @ApiProperty({ required: false })
-  // @IsOptional()
-  // @IsString()
-  // emailVerificationToken?: string;
-
-  // @ApiProperty({ required: false })
-  // @IsOptional()
-  // @IsString()
-  // resetPasswordToken?: string;
-
-  // @ApiProperty({ required: false })
-  // @IsOptional()
-  // @IsIn([0, 1])
-  // status: number;
 }

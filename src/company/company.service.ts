@@ -5,12 +5,14 @@ import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { Company } from './schemas/company.schema';
+import { Account } from '../auth/schemas/account.schema';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 
 @Injectable()
 export class CompanyService {
   constructor(
     @InjectModel(Company.name) private companyModel: Model<Company>,
+    @InjectModel('Account') private readonly accountModel: Model<Account>,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailService,
   ) {}
@@ -70,12 +72,14 @@ export class CompanyService {
   
   async toggleStatus(id: string): Promise<Company> {
     const company = await this.companyModel.findById(id);
-    if (!company) {
+    const user = await this.accountModel.findOne({ refId: id });
+    if (!company || !user) {
       throw new NotFoundException('Company not found');
     }
   
     const newStatus = company.status === 0 ? 1 : 0;
     company.status = newStatus;
+    user.status = newStatus;
     return company.save();
   }
   
@@ -117,6 +121,8 @@ export class CompanyService {
     const company = await this.companyModel.findByIdAndDelete(id).exec();
     if (!company) {
       throw new NotFoundException('Company not found');
+    }else{
+      await this.accountModel.findOneAndDelete({ refId: company._id }).exec();
     }
     return company;
   }

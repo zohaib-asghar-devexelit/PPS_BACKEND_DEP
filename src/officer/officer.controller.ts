@@ -69,7 +69,6 @@ async toggleOfficerStatus(@Param('id') id: string) {
   };
 }
 
-
   // Get an officer by ID
   @Get('getOfficerbyId/:id')
   @ApiOperation({ summary: 'Get officer by ID' })

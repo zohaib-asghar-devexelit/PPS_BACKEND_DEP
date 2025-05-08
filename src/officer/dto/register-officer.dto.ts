@@ -123,5 +123,10 @@ export class RegisterOfficerDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
-  isAdmin?: boolean;
+  isAdmin: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsIn([0, 1])
+  status: number;
 }

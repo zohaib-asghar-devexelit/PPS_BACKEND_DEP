@@ -210,14 +210,13 @@ async toggleStatus(id: string): Promise<Company> {
       await company.save();
   
       const link = `https://yourdomain.com/verify-email?token=${verificationToken}`;
-      // const emailHtml = generateEmailVerificationTemplate(link);
   
       await this.mailerService.sendEmailVerificationLink(email, link);
 
     }
     
 
-    return { message: 'Link sent successfully' };
+    return { message: 'the Link sent successfully' };
   }
 
 }

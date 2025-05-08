@@ -64,9 +64,9 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 // Serverless handler for Vercel
-export const handler = async (req: any, res: any) => {
+export default async function handler(req: any, res: any) {
   const app = await bootstrap();
   app.getHttpAdapter().getInstance()(req, res);
-};
+}
  
  

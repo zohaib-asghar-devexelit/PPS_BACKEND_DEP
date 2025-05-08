@@ -50,10 +50,6 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
-  // Remove this line as we've already set it up above
-  // app.use('/webhooks/stripe', bodyParser.raw({ type: 'application/json' }));
-
-  // Initialize the Nest application
   await app.init();
   }
   return app;

@@ -1,7 +1,34 @@
-// src/auth/schemas/officer.schema.ts
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+
+@Schema()
+export class BankDetail {
+  @Prop({ required: true })
+  accountHolderName: string;
+
+  @Prop({ required: true })
+  bankName: string;
+
+  @Prop({ required: true })
+  accountNumber: string;
+
+  @Prop({ required: true, enum: ['saving', 'checking'] })
+  accountType: string;
+
+  @Prop({ required: true })
+  routingNumber: string;
+}
+export const BankDetailSchema = SchemaFactory.createForClass(BankDetail);
+
+@Schema()
+export class EmergencyContact {
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true })
+  phoneNumber: string;
+}
+export const EmergencyContactSchema = SchemaFactory.createForClass(EmergencyContact);
 
 @Schema({ timestamps: true })
 export class Officer extends Document {
@@ -44,27 +71,25 @@ export class Officer extends Document {
   @Prop({ type: [String], required: false })
   documents?: string[];
 
-  @Prop({ required: false })
-  availability: string; // e.g. "Mon to Fri, 8 AM to 6 PM"
+  // Bank detail sub-document
+  @Prop({ type: BankDetailSchema, required: false })
+  bankDetail?: BankDetail;
 
-  @Prop({ required: false })
-  emergencyContactInfo: string;
+  // Emergency contact sub-document
+  @Prop({ type: EmergencyContactSchema, required: false })
+  emergencyContact?: EmergencyContact;
 
-    // ✅ New fields
   @Prop({ required: false })
   otp?: string;
   
   @Prop({ default: false })
   isEmailVerified: boolean;
 
-  @Prop({ default: 0 }) // 0 for inactive, 1 for active, or as per your use case
+  @Prop({ default: 0 })
   status: number;
 
   @Prop({ required: true })
   accountType: string;
-
 }
 
 export const OfficerSchema = SchemaFactory.createForClass(Officer);
-
-

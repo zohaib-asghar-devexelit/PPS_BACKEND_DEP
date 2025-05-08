@@ -41,6 +41,9 @@ export class Job extends Document {
 
   @Prop({ required: false })
   status?: JobStatus;
+
+  @Prop({ required: true })
+dutyHours: number;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);

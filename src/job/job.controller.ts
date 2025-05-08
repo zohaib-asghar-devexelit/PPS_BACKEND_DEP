@@ -9,6 +9,7 @@ import {
   Put,
   Delete,
   Patch,
+  UseGuards
 } from '@nestjs/common';
 import { JobService } from './job.service';
 import { CreateJobDto } from './dto/create-job.dto';
@@ -25,10 +26,10 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { JobStatus } from 'src/common/enums/jobstatus.enum';
+import { ApiBearerAuth } from '@nestjs/swagger';import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-// src/jobs/job.controller.ts
-// ... (previous code)
-
+@ApiBearerAuth('JWT-auth')// use same key as above
+@UseGuards(JwtAuthGuard)
 @ApiTags('Job')
 @Controller('job')
 export class JobController {
@@ -47,7 +48,6 @@ export class JobController {
       content: result,
     };
   }
-
   @Get('getAllJobs')
   @ApiOperation({ summary: 'Get all jobs with pagination and filters' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -66,6 +66,24 @@ export class JobController {
     type: String,
     description: 'End date for filtering (YYYY-MM-DD)',
   })
+  @ApiQuery({
+    name: 'dutyHours',
+    required: false,
+    type: Number,
+    description: 'Return jobs with duty hours less than this value',
+  })
+  @ApiQuery({
+    name: 'minHourlyRate',
+    required: false,
+    type: Number,
+    description: 'Minimum hourly rate',
+  })
+  @ApiQuery({
+    name: 'maxHourlyRate',
+    required: false,
+    type: Number,
+    description: 'Maximum hourly rate',
+  })
   @SwaggerApiResponse({
     status: 200,
     description: 'Jobs retrieved successfully',
@@ -77,6 +95,9 @@ export class JobController {
     @Query('status') status?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('dutyHours') dutyHours?: number,
+    @Query('minHourlyRate') minHourlyRate?: number,
+    @Query('maxHourlyRate') maxHourlyRate?: number,
   ) {
     const result = await this.jobService.getAllJobs(
       page,
@@ -85,7 +106,11 @@ export class JobController {
       status,
       startDate,
       endDate,
+      dutyHours,
+      minHourlyRate,
+      maxHourlyRate,
     );
+  
     return {
       statusCode: 200,
       success: true,
@@ -99,6 +124,7 @@ export class JobController {
       },
     };
   }
+  
 
   @Get('getJobById/:id')
   @ApiOperation({ summary: 'Get job by ID' })

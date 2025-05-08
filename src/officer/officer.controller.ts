@@ -1,10 +1,14 @@
-import { Controller, Body, Put, Param, Delete, Get, Query,Patch } from '@nestjs/common';
+
+import { Controller, Body, Put, Param, Delete, Get, Query,Patch,UseGuards } from '@nestjs/common';
 import { OfficerService } from './officer.service';
 import { UpdateOfficerDto } from '../officer/dto/update-officer.dto'; // Assuming you have an update DTO
 import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiQuery } from '@nestjs/swagger';
 import { ApiResponse } from '../auth/dto/api-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
-
+@ApiBearerAuth('JWT-auth') // use same key as above
+@UseGuards(JwtAuthGuard)
 @ApiTags('Officer')
 @Controller('officer')
 export class OfficerController {

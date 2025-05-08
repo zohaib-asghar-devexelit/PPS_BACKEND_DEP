@@ -9,6 +9,7 @@ import { LoginService } from '../services/login.service';
 import { ChangePasswordService } from '../services/change-password.service';
 import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { ChangePasswordDto } from '../dto/change-password.dto';
+import { Public } from '../decorators/public.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -19,6 +20,7 @@ export class RegisterController {
         private readonly changePasswordService: ChangePasswordService,
       ) {}
 
+  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Login user (officer or company)' })
   @SwaggerApiResponse({
@@ -51,7 +53,8 @@ export class RegisterController {
       throw error;
     }
   }
-  
+
+  @Public()
   @Post('officer-register')
   @ApiOperation({ summary: 'Register a new officer' })
   @SwaggerApiResponse({
@@ -80,6 +83,7 @@ export class RegisterController {
   }
   
 
+  @Public()
   @Post('company-register')
   @ApiOperation({ summary: 'Register a new company' })
   @SwaggerApiResponse({
@@ -103,6 +107,7 @@ export class RegisterController {
     };
   }
 
+  @Public()
   @Post('verify-otp')
   @ApiOperation({ summary: 'Verify user OTP' })
   @ApiResponse({
@@ -126,6 +131,7 @@ export class RegisterController {
   }
 
 
+  @Public()
   @Post('resend-otp/:id')
   @ApiOperation({ summary: 'Resend OTP to user' })
   @SwaggerApiResponse({

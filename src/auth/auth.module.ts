@@ -13,6 +13,7 @@ import { OfficerModule } from '../officer/officer.module';
 import { ChangePasswordService } from './services/change-password.service';
 import { Account, AccountSchema } from './schemas/account.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { APP_GUARD } from '@nestjs/core';
 
 
 @Module({

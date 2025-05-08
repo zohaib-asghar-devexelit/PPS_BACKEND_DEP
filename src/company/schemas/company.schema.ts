@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+// ContactPerson Schema
 @Schema()
 export class ContactPerson {
   @Prop({ required: true })
@@ -15,6 +16,7 @@ export class ContactPerson {
 
 const ContactPersonSchema = SchemaFactory.createForClass(ContactPerson);
 
+// Company Schema
 @Schema({ timestamps: true })
 export class Company extends Document {
   @Prop({ required: true })
@@ -47,14 +49,8 @@ export class Company extends Document {
   @Prop({ required: true })
   zipCode: string;
 
-  // @Prop({ required: false })
-  // registrationNumber: string;
-
   @Prop({ required: false })
   taxId: string;
-
-  // @Prop({ required: false })
-  // industry: string;
 
   @Prop({ type: [String], required: false })
   documents?: string[];
@@ -77,9 +73,12 @@ export class Company extends Document {
   @Prop({ required: true })
   accountType: string;
 
-  // ✅ New field for multiple contact persons
   @Prop({ type: [ContactPersonSchema], required: false })
   contactPersons?: ContactPerson[];
+
+  // New field for Access Token (verification token)
+  @Prop({ required: false })
+  accessToken?: string;  // Store JWT token here (generated during registration)
 }
 
 export const CompanySchema = SchemaFactory.createForClass(Company);

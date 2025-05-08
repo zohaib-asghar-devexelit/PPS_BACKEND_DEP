@@ -25,7 +25,9 @@ export class RegisterService {
 
   // Officer Registration
 
-  async registerOfficer(registerOfficerDto: RegisterOfficerDto): Promise<{ token: string; officer: Officer }> {
+  async registerOfficer(
+    registerOfficerDto: RegisterOfficerDto,
+  ): Promise<{ token: string; officer: Officer }> {
     const {
       isAdmin,
       emailAddress,
@@ -40,70 +42,58 @@ export class RegisterService {
       state,
       zipCode,
       socialSecurityNumber,
-      availability,
-      emergencyContactInfo,
+      documents,
+      bankDetail,
+      emergencyContact,
     } = registerOfficerDto;
   
-
-    // ❌ isAdmin is missing
+    // Validate isAdmin presence
     if (typeof isAdmin === 'undefined' || isAdmin === null) {
       throw new BadRequestException('isAdmin field is required');
     }
+  
+    // Email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailAddress)) {
       throw new BadRequestException('Invalid email address format');
     }
   
     // Normalize email
-    const normalizedEmail = emailAddress?.trim().toLowerCase();
-    if (!normalizedEmail) {
-      throw new BadRequestException('Email address is required');
-    }
+    const normalizedEmail = emailAddress.trim().toLowerCase();
   
-    // ✅ If isAdmin is false, validate required fields
-
+    // Common required fields
+    const missingFields: string[] = [];
+    if (!fullName) missingFields.push('fullName');
+    if (!phoneNumber) missingFields.push('phoneNumber');
+    if (!address) missingFields.push('address');
+    if (!street) missingFields.push('street');
+    if (!city) missingFields.push('city');
+    if (!state) missingFields.push('state');
+    if (!zipCode) missingFields.push('zipCode');
+  
+    // Additional for non-admin officers
     if (!isAdmin) {
-      const missingFields: string[] = [];
-    
-      if (!fullName) missingFields.push('fullName');
       if (!password) missingFields.push('password');
       if (!confirmPassword) missingFields.push('confirmPassword');
       if (!dateOfBirth) missingFields.push('dateOfBirth');
-      if (!phoneNumber) missingFields.push('phoneNumber');
-      if (!address) missingFields.push('address');
-      if (!street) missingFields.push('street');
-      if (!city) missingFields.push('city');
-      if (!state) missingFields.push('state');
-      if (!zipCode) missingFields.push('zipCode');
       if (!socialSecurityNumber) missingFields.push('socialSecurityNumber');
-      // if (!availability) missingFields.push('availability');
-      // if (!emergencyContactInfo) missingFields.push('emergencyContactInfo');
-    
+      if (!emergencyContact) missingFields.push('emergencyContact');
+  
       if (missingFields.length > 0) {
         throw new BadRequestException(`Missing required fields: ${missingFields.join(', ')}`);
       }
-    
+  
       if (password !== confirmPassword) {
         throw new ConflictException('Passwords do not match');
       }
-    }else {
-      const adminMissingFields: string[] = [];
-    
-      if (!fullName) adminMissingFields.push('fullName');
-      if (!normalizedEmail) adminMissingFields.push('emailAddress');
-      if (!phoneNumber) adminMissingFields.push('phoneNumber');
-      if (!address) adminMissingFields.push('address');
-      if (!street) adminMissingFields.push('street');
-      if (!city) adminMissingFields.push('city');
-      if (!state) adminMissingFields.push('state');
-      if (!zipCode) adminMissingFields.push('zipCode');
-    
-      if (adminMissingFields.length > 0) {
-        throw new BadRequestException(`Missing required fields for admin: ${adminMissingFields.join(', ')}`);
+    } else {
+      // Admin-specific required checks
+      if (missingFields.length > 0) {
+        throw new BadRequestException(`Missing required fields for admin: ${missingFields.join(', ')}`);
       }
     }
   
-    // Check for existing email
+    // Check for existing email in Officer and Company collections
     const [existingOfficer, existingCompany] = await Promise.all([
       this.officerModel.findOne({ emailAddress: normalizedEmail }),
       this.companyModel.findOne({ companyEmail: normalizedEmail }),
@@ -111,14 +101,13 @@ export class RegisterService {
     if (existingOfficer || existingCompany) {
       throw new ConflictException('An account with this email already exists');
     }
-    
   
-    // Hash password
+    // Hash password or generate for admin
     const finalPassword = isAdmin ? generateRandomPassword(8) : password;
     const hashedPassword = await bcrypt.hash(finalPassword, 10);
     const otp = generateOTP();
   
-    // Create officer
+    // Create Officer document
     const newOfficer = new this.officerModel({
       ...registerOfficerDto,
       emailAddress: normalizedEmail,
@@ -130,11 +119,12 @@ export class RegisterService {
       status: 1,
     });
   
-    // Save officer
+    // Save Officer
     const savedOfficer = await newOfficer.save();
   
+    // Create corresponding Account
     await this.accountModel.create({
-      emailAddress: registerOfficerDto.emailAddress,
+      emailAddress: normalizedEmail,
       password: hashedPassword,
       confirmPassword: finalPassword,
       accountType: 'officer',
@@ -142,8 +132,8 @@ export class RegisterService {
       isEmailVerified: isAdmin,
       status: 1,
     });
-
-    // Send email/OTP
+  
+    // Send credentials or OTP
     if (isAdmin) {
       await this.mailerService.sendAdminCredentialsEmail(normalizedEmail, finalPassword);
     } else {
@@ -218,8 +208,6 @@ export class RegisterService {
       if (!city) requiredFields.push('city');
       if (!state) requiredFields.push('state');
       if (!zipCode) requiredFields.push('zipCode');
-      // if (!registrationNumber) requiredFields.push('registrationNumber');
-      // if (!industry) requiredFields.push('industry');
   
       if (requiredFields.length > 0) {
         throw new BadRequestException(`Missing required fields: ${requiredFields.join(', ')}`);
@@ -264,6 +252,16 @@ export class RegisterService {
   
     const savedCompany = await newCompany.save();
   
+    // Generate an access token during registration and save it in the company document
+    const accessToken = this.jwtService.sign({
+      sub: savedCompany._id,
+      email: savedCompany.emailAddress,
+      role: 'company',
+    });
+  
+    savedCompany.accessToken = accessToken;
+    await savedCompany.save(); // Save the access token in the database
+  
     const savedAccount = await this.accountModel.create({
       emailAddress: createCompanyDto.emailAddress,
       password: hashedPassword,
@@ -273,21 +271,18 @@ export class RegisterService {
       isEmailVerified: isAdmin,
       status: 1,
     });
+    
     let accountId = savedAccount ? (savedAccount._id as any).toString() : null;
+    
     if (isAdmin) {
       await this.mailerService.sendAdminCredentialsEmail(emailAddress, finalPassword);
     } else {
       await this.sendOtpToUser(emailAddress, otp);
     }
   
-    const token = this.jwtService.sign({
-      sub: savedCompany._id,
-      email: savedCompany.emailAddress,
-      role: 'company',
-    });
-  
-    return { token, company: savedCompany,   accountId: accountId, };
+    return { token: accessToken, company: savedCompany, accountId: accountId };
   }
+  
   
   
   // async verifyOtp(payload: { id: string; otp: string; email?: string }): Promise<{ message: string }> {

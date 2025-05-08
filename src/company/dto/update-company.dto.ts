@@ -1,105 +1,107 @@
-// src/auth/dto/update-company.dto.ts
-import { IsString, IsEmail, IsOptional, IsPhoneNumber,IsBoolean,IsIn } from 'class-validator';
+// src/auth/dto/register-company.dto.ts
+import {
+  IsString,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsBoolean,
+  IsArray,
+  ValidateNested
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { ContactPersonDto } from './contact-person.dto'; // Adjust path as needed
 
-export class UpdateCompanyDto {
+export class RegisterCompanyDto {
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  companyName?: string;
+  @IsNotEmpty()
+  companyName: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsEmail()
-  emailAddress?: string;
+  @IsEmail({}, { message: 'Invalid email format' })
+  @IsNotEmpty()
+  emailAddress: string;
 
   @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
   @IsString()
-  password?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  confirmPassword?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsPhoneNumber()
-  phoneNumber?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  companyAddress?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  street?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  city?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  state?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  zipCode?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  registrationNumber?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  taxId?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  industry?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  fullName?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsEmail()
-  contactEmail?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  role?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  document?: string;  // Optional file/document upload
-
-  @ApiProperty({ required: false })
   @IsOptional()
+  password: string;
+
+  @ApiProperty()
   @IsString()
-  otp?: string;
+  @IsOptional()
+  confirmPassword: string;
+
+  @ApiProperty()
+  @IsPhoneNumber()
+  @IsNotEmpty()
+  phoneNumber: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  companyAddress: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  street: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  state: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  zipCode: string;
+
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // registrationNumber: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  taxId: string;
+
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // industry: string;
+
+  @ApiProperty({
+    description: 'Array of contact persons',
+    type: [ContactPersonDto],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ContactPersonDto)
+  contactPersons?: ContactPersonDto[];
+
+  @ApiProperty({
+    description: 'Array of document URLs or identifiers',
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  documents?: string[];
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
-  isEmailVerified?: boolean;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsIn([0, 1])
-  status: number;
+  isAdmin: boolean;
 }

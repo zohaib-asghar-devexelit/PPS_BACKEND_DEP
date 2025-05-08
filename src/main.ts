@@ -2,7 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import express from 'express';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 const expressApp = express();
 let app: any;
@@ -14,14 +16,13 @@ async function bootstrap() {
     app.enableCors();
     // Swagger setup
     const config = new DocumentBuilder()
-    .setTitle('TH-BE Project')
-    .setDescription('TH-BE API Documentation')
+    .setTitle('PPS Project')
+    .setDescription('PPS API Documentation')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'JWT-auth',
     )
-    .addTag('Stripe', 'Stripe payment integration endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -46,12 +47,9 @@ async function bootstrap() {
           name: 'OpenAPI Spec',
         },
       ],
+      persistAuthorization: true,
     },
   });
-  // Remove this line as we've already set it up above
-  // app.use('/webhooks/stripe', bodyParser.raw({ type: 'application/json' }));
-
-  // Initialize the Nest application
   await app.init();
   }
   return app;
@@ -72,4 +70,3 @@ export const handler = async (req: any, res: any) => {
 };
  
  
-export default handler;

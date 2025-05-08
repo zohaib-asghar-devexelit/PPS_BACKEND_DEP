@@ -6,11 +6,13 @@ import * as bcrypt from 'bcrypt';
 import { Officer } from './schemas/officer.schema';
 import { RegisterOfficerDto } from './dto/register-officer.dto';
 import { MailService } from '../common/mailer/mailer.service';
+import { Account } from '../auth/schemas/account.schema';
 
 @Injectable()
 export class OfficerService {
   constructor(
     @InjectModel(Officer.name) private officerModel: Model<Officer>,
+    @InjectModel('Account') private readonly accountModel: Model<Account>,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailService,
   ) {}
@@ -37,8 +39,8 @@ export class OfficerService {
   
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
+        { fullName: { $regex: search, $options: 'i' } },
+        { emailAddress: { $regex: search, $options: 'i' } },
         // Add more searchable fields if needed
       ];
     }
@@ -76,12 +78,14 @@ export class OfficerService {
 
   async toggleStatus(id: string): Promise<Officer> {
     const officer = await this.officerModel.findById(id);
-    if (!officer) {
+    const user = await this.accountModel.findOne({ refId: id });
+    if (!officer || !user) {
       throw new NotFoundException('Officer not found');
     }
   
     const newStatus = officer.status === 0 ? 1 : 0;
     officer.status = newStatus;
+    user.status = newStatus;
     return officer.save();
   }
   
@@ -112,6 +116,8 @@ export class OfficerService {
 
     if (!result) {
       throw new NotFoundException('Officer not found');
+    }else{
+      await this.accountModel.findOneAndDelete({ refId: result._id }).exec();
     }
 
     return { message: 'Officer deleted successfully' };

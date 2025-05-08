@@ -1,10 +1,14 @@
-import { Controller, Body, Put, Param, Delete, Get, Query,Patch } from '@nestjs/common';
+
+import { Controller, Body, Put, Param, Delete, Get, Query,Patch,UseGuards } from '@nestjs/common';
 import { OfficerService } from './officer.service';
 import { UpdateOfficerDto } from '../officer/dto/update-officer.dto'; // Assuming you have an update DTO
-import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiQuery } from '@nestjs/swagger';
 import { ApiResponse } from '../auth/dto/api-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
-
+@ApiBearerAuth('JWT-auth') // use same key as above
+@UseGuards(JwtAuthGuard)
 @ApiTags('Officer')
 @Controller('officer')
 export class OfficerController {
@@ -14,6 +18,9 @@ export class OfficerController {
   
 @Get('getAllOfficer')
 @ApiOperation({ summary: 'Get all officers with pagination and search' })
+@ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number for pagination (default: 1)' })
+@ApiQuery({ name: 'limit', required: false, type: Number, description: 'Limit the number of companies per page (default: 10)' })
+@ApiQuery({ name: 'search', required: false, type: String, description: 'Search term for filtering companies by name' })
 @SwaggerApiResponse({
   status: 200,
   description: 'List of officers retrieved successfully',
@@ -48,10 +55,16 @@ async getAll(
 @SwaggerApiResponse({ status: 200, description: 'Officer status toggled successfully' })
 async toggleOfficerStatus(@Param('id') id: string) {
   const updatedOfficer = await this.officerService.toggleStatus(id);
+
+  const message =
+    updatedOfficer.status === 1
+      ? 'Officer activated successfully'
+      : 'Officer banned successfully';
+
   return {
     statusCode: 200,
     success: true,
-    description: 'Officer status toggled successfully',
+    description: message,
     content: updatedOfficer,
   };
 }

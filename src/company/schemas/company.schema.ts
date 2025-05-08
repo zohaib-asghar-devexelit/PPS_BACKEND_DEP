@@ -1,7 +1,22 @@
-// src/auth/schemas/company.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+// ContactPerson Schema
+@Schema()
+export class ContactPerson {
+  @Prop({ required: true })
+  fullName: string;
+
+  @Prop({ required: true })
+  contactEmail: string;
+
+  @Prop({ required: true })
+  role: string;
+}
+
+const ContactPersonSchema = SchemaFactory.createForClass(ContactPerson);
+
+// Company Schema
 @Schema({ timestamps: true })
 export class Company extends Document {
   @Prop({ required: true })
@@ -35,27 +50,11 @@ export class Company extends Document {
   zipCode: string;
 
   @Prop({ required: false })
-  registrationNumber: string;
-
-  @Prop({ required: false })
   taxId: string;
 
-  @Prop({ required: false })
-  industry: string;
+  @Prop({ type: [String], required: false })
+  documents?: string[];
 
-  @Prop({ required: false })
-  fullName: string;
-
-  @Prop({ required: false })
-  contactEmail: string;
-
-  @Prop({ required: false })
-  role: string;
-
-  @Prop({ required: false })
-  document?: string;
-
-  // ✅ New fields
   @Prop({ required: false })
   otp?: string;
 
@@ -68,8 +67,18 @@ export class Company extends Document {
   @Prop({ required: false })
   resetPasswordToken?: string;
 
-  @Prop({ default: 0 }) // 0 for inactive, 1 for active, or as per your use case
+  @Prop({ default: 0 })
   status: number;
+
+  @Prop({ required: true })
+  accountType: string;
+
+  @Prop({ type: [ContactPersonSchema], required: false })
+  contactPersons?: ContactPerson[];
+
+  // New field for Access Token (verification token)
+  @Prop({ required: false })
+  accessToken?: string;  // Store JWT token here (generated during registration)
 }
 
 export const CompanySchema = SchemaFactory.createForClass(Company);

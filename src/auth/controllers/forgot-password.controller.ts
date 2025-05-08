@@ -26,7 +26,7 @@ export class ForgotPasswordController {
   })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     try {
-      const result = await this.forgotPasswordService.sendResetPasswordLink(forgotPasswordDto.email, forgotPasswordDto.role);
+      const result = await this.forgotPasswordService.sendResetPasswordLink(forgotPasswordDto.email);
       return {
         statusCode: 200,
         success: true,

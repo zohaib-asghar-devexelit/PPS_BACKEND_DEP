@@ -7,7 +7,8 @@ import {
   Put,
   Delete,
   Query,
-  Patch
+  Patch,
+  UseGuards
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { RegisterCompanyDto } from './dto/register-company.dto';
@@ -19,7 +20,11 @@ import {
 } from '@nestjs/swagger';
 import { ApiResponse } from '../auth/dto/api-response.dto';
 import { NotFoundException } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@ApiBearerAuth('JWT-auth') // use same key as above
+@UseGuards(JwtAuthGuard)
 @ApiTags('Company')
 @Controller('company')
 export class CompanyController {

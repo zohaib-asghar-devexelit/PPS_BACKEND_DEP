@@ -1,6 +1,10 @@
 // src/auth/dto/update-officer.dto.ts
 
+<<<<<<< HEAD
+import { IsString, IsEmail, IsOptional, IsPhoneNumber, IsDateString,IsBoolean,IsIn,IsArray } from 'class-validator';
+=======
 import { IsString, IsEmail, IsOptional, IsPhoneNumber, IsDateString,IsBoolean,IsIn } from 'class-validator';
+>>>>>>> 87d3f3672105ce549ec57ec17f67166025fde68f
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateOfficerDto {
@@ -59,15 +63,15 @@ export class UpdateOfficerDto {
   @IsString()
   socialSecurityNumber?: string;
 
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  document?: string;
-
-  @ApiProperty()
-  @IsOptional()  // Makes it optional for updates
-  @IsString()
-  preferredWorkingArea?: string;
+  @ApiProperty({
+    description: 'Array of document URLs or identifiers',
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  documents?: string[];
 
   @ApiProperty({
     example: 'Mon to Fri, 8 AM to 6 PM',
@@ -81,33 +85,40 @@ export class UpdateOfficerDto {
   @IsPhoneNumber()
   emergencyContactInfo?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  otp?: string;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsString()
+  // otp?: string;
   
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsBoolean()
-  isEmailVerified?: boolean;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsBoolean()
+  // isEmailVerified?: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
   isAdmin: boolean;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  emailVerificationToken?: string;
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsString()
+  // emailVerificationToken?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   resetPasswordToken?: string;
 
+<<<<<<< HEAD
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsIn([0, 1])
+  // status: number;
+=======
   @ApiProperty({ required: false })
   @IsOptional()
   @IsIn([0, 1])
   status: number;
+>>>>>>> 87d3f3672105ce549ec57ec17f67166025fde68f
 }

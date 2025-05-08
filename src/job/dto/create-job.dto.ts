@@ -1,8 +1,6 @@
-// src/jobs/dto/create-job.dto.ts
-import { ApiProperty ,ApiPropertyOptional} from '@nestjs/swagger';
-import { JobStatus } from '../../common/enums/jobstatus.enum';
-import { IsNotEmpty, IsOptional, IsString, IsNumber,IsEnum ,IsBoolean, IsMongoId,IsArray } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { IsNotEmpty, IsOptional, IsString, IsNumber, IsBoolean, IsMongoId } from 'class-validator';
 
 export class CreateJobDto {
   @ApiProperty({ example: 'Alpha Security Services' })
@@ -40,17 +38,17 @@ export class CreateJobDto {
   @IsNumber()
   officersRequired: number;
 
-  @ApiProperty({ example: '2025-05-20' })
+  @ApiProperty({ example: '2025-05-20', description: 'Job date in ISO format' })
   @IsNotEmpty()
   @IsString()
-  date: string;
+  jobDate: string;
 
-  @ApiProperty({ example: '08:00 AM' })
+  @ApiProperty({ example: '08:00 AM', description: 'Start time in HH:mm AM/PM format' })
   @IsNotEmpty()
   @IsString()
   startTime: string;
 
-  @ApiProperty({ example: '05:00 PM' })
+  @ApiProperty({ example: '05:00 PM', description: 'End time in HH:mm AM/PM format' })
   @IsNotEmpty()
   @IsString()
   endTime: string;
@@ -60,18 +58,13 @@ export class CreateJobDto {
   @IsString()
   jobLocation: string;
 
-  @ApiProperty({ example: 25, required: false })
+  @ApiPropertyOptional({ example: 25 })
   @IsOptional()
   @IsNumber()
   hourlyRate?: number;
 
-@ApiProperty({ enum: JobStatus, example: JobStatus.PENDING_PRICING })
-@IsOptional()
-@IsEnum(JobStatus)
-status?: JobStatus;
-
-@ApiProperty({ example: 'true' })
-@IsOptional()
-@IsBoolean()
-isAdmin: boolean;
+  @ApiPropertyOptional({ description: 'Flag to indicate admin context' })
+  @IsOptional()
+  @IsBoolean()
+  isAdmin?: boolean;
 }

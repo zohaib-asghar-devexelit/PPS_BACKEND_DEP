@@ -5,12 +5,14 @@ import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { Company } from './schemas/company.schema';
+import { Account } from '../auth/schemas/account.schema';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 
 @Injectable()
 export class CompanyService {
   constructor(
     @InjectModel(Company.name) private companyModel: Model<Company>,
+    @InjectModel('Account') private readonly accountModel: Model<Account>,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailService,
   ) {}
@@ -34,7 +36,10 @@ export class CompanyService {
   
     // Add search filter for company name (adjust this field as necessary)
     if (search) {
-      query['name'] = { $regex: search, $options: 'i' }; // case-insensitive search
+      query['$or'] = [
+        { companyName: { $regex: search, $options: 'i' } },
+        { emailAddress: { $regex: search, $options: 'i' } }
+      ];
     }
   
     // Add other filters to the query if provided
@@ -65,16 +70,63 @@ export class CompanyService {
     };
   }
   
-  async toggleStatus(id: string): Promise<Company> {
-    const company = await this.companyModel.findById(id);
-    if (!company) {
-      throw new NotFoundException('Company not found');
-    }
+  // async toggleStatus(id: string): Promise<Company> {
+  //   const company = await this.companyModel.findById(id);
+  //   const user = await this.accountModel.findOne({ refId: id });
+  //   console.log("==>user",user,"==>company",company,"==>userId",id)
+  //   if (!company || !user) {
+  //     throw new NotFoundException('Company not found');
+  //   }
   
-    const newStatus = company.status === 0 ? 1 : 0;
-    company.status = newStatus;
-    return company.save();
+  //   const newStatus = company.status === 0 ? 1 : 0;
+  //   company.status = newStatus;
+  //   user.status = newStatus;
+  //   return company.save();
+  // }
+
+  // ... existing code ...
+
+async toggleStatus(id: string): Promise<Company> {
+  const company = await this.companyModel.findById(id);
+  // Try different approaches to find the account
+  const user = await this.accountModel.findOne({ refId: id });
+  // Try with ObjectId conversion (if you're using mongoose)
+  const mongoose = require('mongoose');
+  const ObjectId = mongoose.Types.ObjectId;
+  let objectIdQuery;
+  
+  try {
+    // Only convert if it's a valid ObjectId string
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      objectIdQuery = await this.accountModel.findOne({ refId: new ObjectId(id) });
+    }
+  } catch (error) {
+    console.error("Error converting to ObjectId:", error);
   }
+
+  if (!company) {
+    throw new NotFoundException('Company not found');
+  }
+  
+  if (!user && !objectIdQuery) {
+    console.log("==>No matching account found for refId:", id);
+    // You might want to create the account if it doesn't exist
+    // Or handle this case differently
+  }
+  
+  const userToUpdate = user || objectIdQuery;
+  const newStatus = company.status === 0 ? 1 : 0;
+  company.status = newStatus;
+  
+  if (userToUpdate) {
+    userToUpdate.status = newStatus;
+    await userToUpdate.save();
+  }
+  
+  return company.save();
+}
+
+// ... existing code ...
   
 
   // Get a company by ID
@@ -114,6 +166,8 @@ export class CompanyService {
     const company = await this.companyModel.findByIdAndDelete(id).exec();
     if (!company) {
       throw new NotFoundException('Company not found');
+    }else{
+      await this.accountModel.findOneAndDelete({ refId: company._id }).exec();
     }
     return company;
   }

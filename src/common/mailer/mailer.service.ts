@@ -33,7 +33,7 @@ export class MailService {
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h2>Welcome to Police Professional Service</h2>
-          <p>Your admin account has been created successfully. Use the credentials below to log in:</p>
+          <p>Your account has been created successfully. Use the credentials below to log in:</p>
           <p><strong>Email:</strong> ${to}</p>
           <p><strong>Password:</strong> ${password}</p>
           <p>Please change your password after logging in for the first time.</p>
@@ -43,7 +43,6 @@ export class MailService {
   
     await this.transporter.sendMail(mailOptions);
   }
-
   async sendResetPasswordLink(to: string, link: string) {
     const html = generateResetPasswordTemplate(link);
     const mailOptions = {

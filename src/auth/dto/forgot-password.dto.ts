@@ -6,7 +6,7 @@ export class ForgotPasswordDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'example@company.com' })
-  @IsIn(['company', 'officer'], { message: 'userType must be either company or officer' })
-  role: 'company' | 'officer';
+  // @ApiProperty({ example: 'example@company.com' })
+  // @IsIn(['company', 'officer'], { message: 'userType must be either company or officer' })
+  // role: 'company' | 'officer';
 }

@@ -305,7 +305,7 @@ async updateJob(id: string, dto: UpdateJobDto): Promise<Job> {
     const skip = (page - 1) * limit;
   
     const filter: any = {};
-  
+    console.log("==>",startDate,endDate)
     // Text search
     if (search) {
       filter.$or = [
@@ -327,7 +327,7 @@ async updateJob(id: string, dto: UpdateJobDto): Promise<Job> {
         $lte: endDate,
       };
     }
-  
+    console.log("==>",filter.date)
     // Duty hours: less than provided number
     if (dutyHours !== undefined) {
       filter.dutyHours = { $lt: dutyHours };

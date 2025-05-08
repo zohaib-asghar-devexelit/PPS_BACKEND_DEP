@@ -14,8 +14,7 @@ export class UpdateJobDto extends PartialType(CreateJobDto) {
 
   @ApiPropertyOptional({ example: '60e8b3b1f39c1c3a4c8d3a0f', description: 'MongoDB ObjectId of the company' })
   @IsOptional()
-  @IsMongoId()
-  companyId: string;
+  companyId: Types.ObjectId;
 
   @ApiPropertyOptional({ example: 'Night Watch Duty' })
   @IsOptional()

@@ -99,19 +99,21 @@ export class JobService {
   //   return job.save();
   // }
 
-  private timeToMinutes(t: string): number {
+  private timeToMinutes = (t: string) => {
     const [time, modifier] = t.split(' ');
-    let [h, m] = time.split(':').map(v => parseInt(v, 10));
+    let h;
+    const m = time.split(':').map(v => parseInt(v, 10))[1];
+    h = time.split(':').map(v => parseInt(v, 10))[0];
     if (modifier === 'PM' && h < 12) h += 12;
     if (modifier === 'AM' && h === 12) h = 0;
     return h * 60 + m;
-  }
+  };
   // src/jobs/jobs.service.ts
   async createJob(dto: CreateJobDto): Promise<Job> {
     // 1) Ensure company exists
     const company = await this.companyModel.findById(dto.companyId).exec();
     if (!company) {
-      throw new NotFoundException(`Company with ID ${dto.companyId} not found`);
+      throw new NotFoundException(`Company with ID ${dto.companyId.toString()} not found`);
     }
 
     // 2) Date check (no past dates)
@@ -188,7 +190,9 @@ async updateJob(id: string, dto: UpdateJobDto): Promise<Job> {
   // 3) If startTime or endTime provided, validate and recalc dutyHours
   const timeToMinutes = (t: string) => {
     const [time, modifier] = t.split(' ');
-    let [h, m] = time.split(':').map(v => parseInt(v, 10));
+    let h;
+    const m = time.split(':').map(v => parseInt(v, 10))[1];
+    h = time.split(':').map(v => parseInt(v, 10))[0];
     if (modifier === 'PM' && h < 12) h += 12;
     if (modifier === 'AM' && h === 12) h = 0;
     return h * 60 + m;

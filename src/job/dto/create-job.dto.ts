@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { IsNotEmpty, IsOptional, IsString, IsNumber, IsBoolean, IsMongoId } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsNumber, IsBoolean, IsMongoId,IsArray } from 'class-validator';
 
 export class CreateJobDto {
   @ApiProperty({ example: 'Alpha Security Services' })

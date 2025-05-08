@@ -70,61 +70,61 @@ export class CompanyService {
     };
   }
   
-  // async toggleStatus(id: string): Promise<Company> {
-  //   const company = await this.companyModel.findById(id);
-  //   const user = await this.accountModel.findOne({ refId: id });
-  //   console.log("==>user",user,"==>company",company,"==>userId",id)
-  //   if (!company || !user) {
-  //     throw new NotFoundException('Company not found');
-  //   }
+  async toggleStatus(id: string): Promise<Company> {
+    const company = await this.companyModel.findById(id);
+    const user = await this.accountModel.findOne({ refId: id });
+    console.log("==>user",user,"==>company",company,"==>userId",id)
+    if (!company || !user) {
+      throw new NotFoundException('Company not found');
+    }
   
-  //   const newStatus = company.status === 0 ? 1 : 0;
-  //   company.status = newStatus;
-  //   user.status = newStatus;
-  //   return company.save();
-  // }
+    const newStatus = company.status === 0 ? 1 : 0;
+    company.status = newStatus;
+    user.status = newStatus;
+    return company.save();
+  }
 
   // ... existing code ...
 
-async toggleStatus(id: string): Promise<Company> {
-  const company = await this.companyModel.findById(id);
-  // Try different approaches to find the account
-  const user = await this.accountModel.findOne({ refId: id });
-  // Try with ObjectId conversion (if you're using mongoose)
-  const mongoose = require('mongoose');
-  const ObjectId = mongoose.Types.ObjectId;
-  let objectIdQuery;
+// async toggleStatus(id: string): Promise<Company> {
+//   const company = await this.companyModel.findById(id);
+//   // Try different approaches to find the account
+//   const user = await this.accountModel.findOne({ refId: id });
+//   // Try with ObjectId conversion (if you're using mongoose)
+//   const mongoose = require('mongoose');
+//   const ObjectId = mongoose.Types.ObjectId;
+//   let objectIdQuery;
   
-  try {
-    // Only convert if it's a valid ObjectId string
-    if (mongoose.Types.ObjectId.isValid(id)) {
-      objectIdQuery = await this.accountModel.findOne({ refId: new ObjectId(id) });
-    }
-  } catch (error) {
-    console.error("Error converting to ObjectId:", error);
-  }
+//   try {
+//     // Only convert if it's a valid ObjectId string
+//     if (mongoose.Types.ObjectId.isValid(id)) {
+//       objectIdQuery = await this.accountModel.findOne({ refId: new ObjectId(id) });
+//     }
+//   } catch (error) {
+//     console.error("Error converting to ObjectId:", error);
+//   }
 
-  if (!company) {
-    throw new NotFoundException('Company not found');
-  }
+//   if (!company) {
+//     throw new NotFoundException('Company not found');
+//   }
   
-  if (!user && !objectIdQuery) {
-    console.log("==>No matching account found for refId:", id);
-    // You might want to create the account if it doesn't exist
-    // Or handle this case differently
-  }
+//   if (!user && !objectIdQuery) {
+//     console.log("==>No matching account found for refId:", id);
+//     // You might want to create the account if it doesn't exist
+//     // Or handle this case differently
+//   }
   
-  const userToUpdate = user || objectIdQuery;
-  const newStatus = company.status === 0 ? 1 : 0;
-  company.status = newStatus;
+//   const userToUpdate = user || objectIdQuery;
+//   const newStatus = company.status === 0 ? 1 : 0;
+//   company.status = newStatus;
   
-  if (userToUpdate) {
-    userToUpdate.status = newStatus;
-    await userToUpdate.save();
-  }
+//   if (userToUpdate) {
+//     userToUpdate.status = newStatus;
+//     await userToUpdate.save();
+//   }
   
-  return company.save();
-}
+//   return company.save();
+// }
 
 // ... existing code ...
   

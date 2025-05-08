@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder  } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import express from 'express';
@@ -23,7 +23,6 @@ async function bootstrap() {
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'JWT-auth',
     )
-    .addTag('Stripe', 'Stripe payment integration endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -50,7 +49,6 @@ async function bootstrap() {
       ],
       persistAuthorization: true,
     },
-
   });
   // Remove this line as we've already set it up above
   // app.use('/webhooks/stripe', bodyParser.raw({ type: 'application/json' }));
